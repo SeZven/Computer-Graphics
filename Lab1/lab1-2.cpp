@@ -126,6 +126,33 @@ int main(int argc, char const *argv[])
   // COPY YOUR SOLUTION FROM lab1-1.cpp HERE.
   // Create geometry and VBO and VAO.
   //-------------------------------------------------------------------------//
+  // YOUR CODE GOES HERE.
+  // 1. Create geometry
+  float points[3][3] = { {-0.5,-0.5,0.0},{0.5,-0.5,0.0},{0.5,0.5,0.0} }; //QUESTION: How many elements? 9
+  // 2-3. Create VAO and VBO
+  GLuint vao;
+  glGenVertexArrays(1, &vao);
+  glBindVertexArray(vao);
+
+  GLuint vbo;
+  glGenBuffers(1, &vbo);
+  glBindBuffer(GL_ARRAY_BUFFER, vbo); //GL_ARRAY_BUFFER, because vertex attributes (position in this case)
+  // 4-6. Copy vertex data to VBO, configure the VAO
+  glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);//4
+
+  glEnableVertexAttribArray(0);//5
+
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);//6
+  // attribute nr 0
+  // 3 elements per attribute (x, y, z)
+  // the data type for each element
+  // normalise integer values to be <1 or not?
+  // stride = nr of bytes between start of each attribute
+  // array offset
+
+
+  //-------------------------------------------------------------------------//
+  //-------------------------------------------------------------------------//
 
   // Loop until the window is closed.
   while (!glfwWindowShouldClose (window)) 
@@ -138,6 +165,12 @@ int main(int argc, char const *argv[])
     //-----------------------------------------------------------------------//
     // COPY YOUR SOLUTION FROM lab1-1.cpp HERE.
     // Bind the VAO and issue an appropriate glDraw*() command.
+	  //-----------------------------------------------------------------------//
+	  // YOUR CODE GOES HERE.
+	  // 7. Bind the VAO and issue an appropriate glDraw*() command.
+	  glBindVertexArray(vao);
+	  glDrawArrays(GL_TRIANGLES, 0, 3); //set of triangles, starting at index 0, using 3 vertices
+	  //-----------------------------------------------------------------------//
     //-----------------------------------------------------------------------//
 
 	  //Refresh the displayed image.
