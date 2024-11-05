@@ -13,6 +13,9 @@ std::string vertex_shader_str =	readFile("../lab1-3_vs.glsl");
 std::string fragment_shader_str =	readFile("../lab1-3_fs.glsl");
 GLuint shader_program;
 
+float x_offset = 0; //1
+float y_offset = 0;
+
 
 // Helper function to forward shader compilation errors to terminal.
 void checkShaderCompileError(GLint shaderID)
@@ -87,14 +90,19 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 	//-----------------------------------------------------------------------//
 	// YOUR CODE GOES HERE
 	// Update some parameter for the vertex shader on arrow keys.
+	//2
 	//-----------------------------------------------------------------------//
 	if ((key == GLFW_KEY_LEFT) && ( (action == GLFW_PRESS) || (action == GLFW_REPEAT))){
+		x_offset -= 0.1;
 	}
 	if ((key == GLFW_KEY_RIGHT) && ( (action == GLFW_PRESS) || (action == GLFW_REPEAT))){
+		x_offset += 0.1;
 	}
 	if ((key == GLFW_KEY_UP) && ( (action == GLFW_PRESS) || (action == GLFW_REPEAT))){
+		y_offset += 0.1;
 	}
 	if ((key == GLFW_KEY_DOWN) && ( (action == GLFW_PRESS) || (action == GLFW_REPEAT))){
+		y_offset -= 0.1;
 	}
 }
 
@@ -147,6 +155,34 @@ int main(int argc, char const *argv[])
 	// COPY YOUR SOLUTION FROM lab1-2.cpp HERE.
 	// Create geometry and VBO and VAO.
 	//-------------------------------------------------------------------------//
+    // YOUR CODE GOES HERE.
+    // 1. Create geometry
+	float points[3][3] = { {-0.5,-0.5,0.0},{0.5,-0.5,0.0},{0.5,0.5,0.0} }; //QUESTION: How many elements? 9
+	// 2-3. Create VAO and VBO
+	GLuint vao;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	GLuint vbo;
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo); //GL_ARRAY_BUFFER, because vertex attributes (position in this case)
+	// 4-6. Copy vertex data to VBO, configure the VAO
+	glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);//4
+
+	glEnableVertexAttribArray(0);//5
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);//6
+	// attribute nr 0
+	// 3 elements per attribute (x, y, z)
+	// the data type for each element
+	// normalise integer values to be <1 or not?
+	// stride = nr of bytes between start of each attribute
+	// array offset
+
+
+	//-------------------------------------------------------------------------//
+	//-------------------------------------------------------------------------//
+	//-------------------------------------------------------------------------//
 
 	while (!glfwWindowShouldClose (window)) 
 	{
@@ -159,10 +195,25 @@ int main(int argc, char const *argv[])
 		// YOUR CODE GOES HERE
 		// Update uniform variables in your shader_program
 		//-----------------------------------------------------------------------//
+		GLint offset_location = glGetUniformLocation(shader_program, "position_offset"); //4
+		glUniform2f(offset_location, x_offset, y_offset);
+
+		GLint colour_location = glGetUniformLocation(shader_program, "colour_offset"); //6
+		glUniform2f(colour_location, x_offset, y_offset);
+		// colour is “attached to the window” so that the triangle’s colours change when it moves
+		// change x_offset and y_offset for a constant to make it “attached to the triangle”
+		// glUniform2f(colour_location, 1, 1);
 
 		//-----------------------------------------------------------------------//
 		// COPY YOUR SOLUTION FROM lab1-2.cpp HERE.
 		// Issue an appropriate glDraw*() command.
+		//-----------------------------------------------------------------------//
+	    // YOUR CODE GOES HERE.
+	    // 7. Bind the VAO and issue an appropriate glDraw*() command.
+		glBindVertexArray(vao);
+		glDrawArrays(GL_TRIANGLES, 0, 3); //set of triangles, starting at index 0, using 3 vertices
+		//-----------------------------------------------------------------------//
+	    //-----------------------------------------------------------------------//
 		//-----------------------------------------------------------------------//
 
 		glfwSwapBuffers (window);
