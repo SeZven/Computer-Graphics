@@ -1,4 +1,4 @@
-#version 450
+#version 430 //450
 
 in vec4 vp;
 

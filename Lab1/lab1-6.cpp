@@ -21,6 +21,7 @@ std::string vertex_shader_str =	readFile("../lab1-6_vs.glsl");
 std::string fragment_shader_str =	readFile("../lab1-6_fs.glsl");
 GLuint shader_program;
 
+float g_rotation[2] = { 0,0 }; // g_rotation[0] = x_rotation, g_rotation[1] = y_rotation 
 
 // Helper function to forward shader compilation errors to terminal.
 void checkShaderCompileError(GLint shaderID)
@@ -87,6 +88,19 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 	//-------------------------------------------------------------------------//
 	// COPY YOUR CODE FROM BEFORE HERE
 	// Update rotation angle here, for example
+	if ((key == GLFW_KEY_LEFT) && ((action == GLFW_PRESS) || (action == GLFW_REPEAT))) {
+		g_rotation[0] -= 0.1; //x
+	}
+	if ((key == GLFW_KEY_RIGHT) && ((action == GLFW_PRESS) || (action == GLFW_REPEAT))) {
+		g_rotation[0] += 0.1; //x
+	}
+	if ((key == GLFW_KEY_UP) && ((action == GLFW_PRESS) || (action == GLFW_REPEAT))) {
+		g_rotation[1] += 0.1; //y
+	}
+	if ((key == GLFW_KEY_DOWN) && ((action == GLFW_PRESS) || (action == GLFW_REPEAT))) {
+		g_rotation[1] -= 0.1; //y
+	}
+	//-------------------------------------------------------------------------//
 	//-------------------------------------------------------------------------//
 }
 
@@ -136,6 +150,48 @@ int main(int argc, char const *argv[])
 	//-------------------------------------------------------------------------//
 	// COPY FROM lab1-5
 	// Geometry, VBO, EBO, VAO
+	float points[] = { //1
+		// A cube has 8 vertices...
+		-0.5f, -0.5f, -0.5f, // vertex 0
+		-0.5f, -0.5f,  0.5f, // vertex 1
+		-0.5f,  0.5f, -0.5f, // vertex 2
+		-0.5f,  0.5f,  0.5f, // vertex 3
+		 0.5f, -0.5f, -0.5f, // vertex 4
+		 0.5f, -0.5f,  0.5f, // vertex 5
+		 0.5f,  0.5f, -0.5f, // vertex 6
+		 0.5f,  0.5f,  0.5f  // vertex 7
+	};
+
+	unsigned short faces[] = {
+		// ... and 12 triangular faces, defined by these vertex indices (counter-clockwise):
+		0, 3, 2,  0, 1, 3,  // left face
+		4, 6, 5,  5, 6, 7,  // right face
+		0, 2, 4,  2, 6, 4,  // back face
+		1, 5, 3,  3, 5, 7,  // front face
+		2, 3, 7,  2, 7, 6,  // top face
+		0, 4, 1,  1, 4, 5   // bottom face
+
+	};
+
+	GLuint vao; //2
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	GLuint vbo;
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+
+	GLuint ebo; //3
+	glGenBuffers(1, &ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(faces), faces, GL_STATIC_DRAW);
+	//-------------------------------------------------------------------------//
+	//-------------------------------------------------------------------------//
 	//-------------------------------------------------------------------------//
   
 
@@ -155,7 +211,7 @@ int main(int argc, char const *argv[])
 		// created by glm.
 		//
 		// Use glm::perspective to create a projection matrix
-		//
+		glm::mat4 Projection = glm::perspective(glm::radians(45), w_width/w_height, 1, 100);
 		// Use glm::translate and glm::rotate to create the
 		// model and view matrices.
 		//
