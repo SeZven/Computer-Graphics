@@ -13,7 +13,7 @@ std::string fragment_shader_str =	readFile("../lab1-5_fs.glsl");
 GLuint shader_program;
 
 // You can store the rotation angles here, for example
-float g_rotation[2];
+float g_rotation[2] = {0,0}; // g_rotation[0] = x_rotation, g_rotation[1] = y_rotation 
 
 
 // Multiply two 4x4 matrices A * B = C
@@ -22,6 +22,15 @@ void MUL_4x4 (GLfloat (*C)[4], const GLfloat (*A)[4], const GLfloat (*B)[4])
 	//-------------------------------------------------------------------------//
 	// YOUR CODE GOES HERE
 	// Compute C = A * B
+	//4
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			C[i][j] = 0.0f;
+			for (int k = 0; k < 4; k++) {
+				C[i][j] += A[i][k] * B[k][j];
+			}
+		}
+	}
 	//-------------------------------------------------------------------------//
 }
 
@@ -100,6 +109,19 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 	//-------------------------------------------------------------------------//
 	// YOUR CODE GOES HERE
 	// Update rotation angle here, for example
+	//1
+	if ((key == GLFW_KEY_LEFT) && ((action == GLFW_PRESS) || (action == GLFW_REPEAT))) {
+		g_rotation[0] -= 0.1; //x
+	}
+	if ((key == GLFW_KEY_RIGHT) && ((action == GLFW_PRESS) || (action == GLFW_REPEAT))) {
+		g_rotation[0] += 0.1; //x
+	}
+	if ((key == GLFW_KEY_UP) && ((action == GLFW_PRESS) || (action == GLFW_REPEAT))) {
+		g_rotation[1] += 0.1; //y
+	}
+	if ((key == GLFW_KEY_DOWN) && ((action == GLFW_PRESS) || (action == GLFW_REPEAT))) {
+		g_rotation[1] -= 0.1; //y
+	}
 	//-------------------------------------------------------------------------//
 
 	//  if ((key == GLFW_KEY_RIGHT) && ( (action == GLFW_PRESS) || action==GLFW_REPEAT) )   
@@ -160,6 +182,47 @@ int main(int argc, char const *argv[])
 	//-------------------------------------------------------------------------//
 	// COPY FROM lab1-4
 	// Geometry, VBO, EBO, VAO
+	float points[] = { //1
+		// A cube has 8 vertices...
+		-0.5f, -0.5f, -0.5f, // vertex 0
+		-0.5f, -0.5f,  0.5f, // vertex 1
+		-0.5f,  0.5f, -0.5f, // vertex 2
+		-0.5f,  0.5f,  0.5f, // vertex 3
+		 0.5f, -0.5f, -0.5f, // vertex 4
+		 0.5f, -0.5f,  0.5f, // vertex 5
+		 0.5f,  0.5f, -0.5f, // vertex 6
+		 0.5f,  0.5f,  0.5f  // vertex 7
+	};
+
+	unsigned short faces[] = {
+		// ... and 12 triangular faces, defined by these vertex indices (counter-clockwise):
+		0, 3, 2,  0, 1, 3,  // left face
+		4, 6, 5,  5, 6, 7,  // right face
+		0, 2, 4,  2, 6, 4,  // back face
+		1, 5, 3,  3, 5, 7,  // front face
+		2, 3, 7,  2, 7, 6,  // top face
+		0, 4, 1,  1, 4, 5   // bottom face
+
+	};
+
+	GLuint vao; //2
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	GLuint vbo;
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+
+	GLuint ebo; //3
+	glGenBuffers(1, &ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(faces), faces, GL_STATIC_DRAW);
+	//-------------------------------------------------------------------------//
 	//-------------------------------------------------------------------------//
    
 
@@ -177,30 +240,64 @@ int main(int argc, char const *argv[])
 		// YOUR CODE GOES HERE
 		// Define the projection matrix, rotation matrices, model matrix, etc.
 
-		// GLfloat rotate_y[4][4];
-		// GLfloat rotate_x[4][4]; 
+		GLfloat rotate_y[4][4] = {
+		{cos(g_rotation[1]),	0, sin(g_rotation[1]),	0},
+		{0,						1, 0,					0},
+		{-sin(g_rotation[1]),	0, cos(g_rotation[1]),	0},
+		{0,						0, 0,					1}
+		};; //2
+		GLfloat rotate_x[4][4] = {
+		{1,	0,					0,						0},
+		{0, cos(g_rotation[0]),	-sin(g_rotation[0]),	0},
+		{0, sin(g_rotation[0]),	cos(g_rotation[0]),		0},
+		{0, 0,					0,						1}
+		};;
     
-		// GLfloat modelMatrix[4][4];
-		// MUL_4x4(modelMatrix, rotate_x, rotate_y);
+		GLfloat modelMatrix[4][4]; //3
+		MUL_4x4(modelMatrix, rotate_x, rotate_y);//5
     
-		// GLfloat viewMatrix[4][4];
-    
-		// GLfloat modelViewMatrix[4][4];
-		// MUL_4x4(modelViewMatrix, inverseViewMatrix, modelMatrix);
+		GLfloat viewMatrix[4][4] = { //6
+		{1, 0, 0, 0},
+		{0, 1, 0, 0},
+		{0, 0, 1, 2},
+		{0, 0, 0, 1}
+		};
 
-		// GLfloat projectionMatrix[4][4];
+		GLfloat inverseViewMatrix[4][4] = {
+		{1, 0, 0, 0},
+		{0, 1, 0, 0},
+		{0, 0, 1, -2},
+		{0, 0, 0, 1}
+		};
+    
+		GLfloat modelViewMatrix[4][4];
+		MUL_4x4(modelViewMatrix, inverseViewMatrix, modelMatrix);
+
+
+		GLfloat projectionMatrix[4][4] = {
+		{1, 0, 0,			0},
+		{0, 1, 0,			0},
+		{0, 0, -101 / 99,	-200 / 99}, // 100+1/100-1, 2*100*1/100-1
+		{0, 0, -1,			0}
+		};//7
 		
-		// GLfloat modelViewProjectionMatrix[4][4];
-		// MUL_4x4(modelViewProjectionMatrix, projectionMatrix, modelViewMatrix);
+		GLfloat modelViewProjectionMatrix[4][4];
+		MUL_4x4(modelViewProjectionMatrix, projectionMatrix, modelViewMatrix);
 		//-----------------------------------------------------------------------//
     
 		//-----------------------------------------------------------------------//
 		// YOUR CODE GOES HERE
 		// Use glUniformMatrix4fv to send your matrix or matrices to the shader
+		//8
+		GLint mvp_location = glGetUniformLocation(shader_program, "modelViewProjectionMatrix");
+		glUniformMatrix4fv(mvp_location, 1, GL_TRUE, &modelViewProjectionMatrix[0][0]);
 		//-----------------------------------------------------------------------//
     
 		//-----------------------------------------------------------------------//
 		// Call glDrawElements as before
+		glBindVertexArray(vao); //4
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
+		//-----------------------------------------------------------------------//
 		//-----------------------------------------------------------------------//
 
 		glfwSwapBuffers (window);

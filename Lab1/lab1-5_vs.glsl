@@ -1,6 +1,7 @@
-#version 450
+#version 430 //450
 
 in vec4 vp;
+uniform mat4 modelViewProjectionMatrix;
 
 void main () {
 	
@@ -11,7 +12,7 @@ void main () {
 	// an appropriate `out` variable.
 	// -------------------------------------------------------------------------//
 
-	gl_Position = vp;
+	gl_Position = modelViewProjectionMatrix * vp;
 
 };
   
