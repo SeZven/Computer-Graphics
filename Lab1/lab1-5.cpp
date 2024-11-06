@@ -277,9 +277,9 @@ int main(int argc, char const *argv[])
 		GLfloat projectionMatrix[4][4] = {
 		{1, 0, 0,			0},
 		{0, 1, 0,			0},
-		{0, 0, -101 / 99,	-200 / 99}, // 100+1/100-1, 2*100*1/100-1
+		{0, 0, -101 / 99,	-200 / 99}, // A= - 100+1/100-1, - 2*100*1/100-1
 		{0, 0, -1,			0}
-		};//7
+		};//7 out of lecture 2, slide 36 and 39
 		
 		GLfloat modelViewProjectionMatrix[4][4];
 		MUL_4x4(modelViewProjectionMatrix, projectionMatrix, modelViewMatrix);
