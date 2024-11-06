@@ -131,6 +131,46 @@ int main(int argc, char const *argv[])
 	// YOUR CODE GOES HERE.
 	// Create geometry and VBO and VAO, and also an EBO.
 	// (The geometry will be new, so you cannot only copy your previous code.)
+	float points[] = { //1
+		// A cube has 8 vertices...
+		-0.5f, -0.5f, -0.5f, // vertex 0
+		-0.5f, -0.5f,  0.5f, // vertex 1
+		-0.5f,  0.5f, -0.5f, // vertex 2
+		-0.5f,  0.5f,  0.5f, // vertex 3
+		 0.5f, -0.5f, -0.5f, // vertex 4
+		 0.5f, -0.5f,  0.5f, // vertex 5
+		 0.5f,  0.5f, -0.5f, // vertex 6
+		 0.5f,  0.5f,  0.5f  // vertex 7
+	};
+
+	unsigned short faces[] = {
+		// ... and 12 triangular faces, defined by these vertex indices (counter-clockwise):
+		0, 3, 2,  0, 1, 3,  // left face
+		4, 6, 5,  5, 6, 7,  // right face
+		0, 2, 4,  2, 6, 4,  // back face
+		1, 5, 3,  3, 5, 7,  // front face
+		2, 3, 7,  2, 7, 6,  // top face
+		0, 4, 1,  1, 4, 5   // bottom face
+
+	};
+
+	GLuint vao; //2
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	GLuint vbo;
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+
+	GLuint ebo; //3
+	glGenBuffers(1, &ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(faces), faces, GL_STATIC_DRAW);
 	//-------------------------------------------------------------------------//
 
 	while (!glfwWindowShouldClose (window)) 
@@ -143,6 +183,8 @@ int main(int argc, char const *argv[])
 		//-----------------------------------------------------------------------//
 		// YOUR CODE GOES HERE
 		// Issue an appropriate glDraw*() command.
+		glBindVertexArray(vao); //4
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
 		//-----------------------------------------------------------------------//
 
 		glfwSwapBuffers (window);
