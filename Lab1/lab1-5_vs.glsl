@@ -2,6 +2,7 @@
 
 in vec4 vp;
 uniform mat4 modelViewProjectionMatrix;
+out vec4 frag_position;
 
 void main () {
 	
@@ -12,7 +13,8 @@ void main () {
 	// an appropriate `out` variable.
 	// -------------------------------------------------------------------------//
 
-	gl_Position = modelViewProjectionMatrix * vp;
+	frag_position = modelViewProjectionMatrix * vp;
+	gl_Position = frag_position;
 
 };
   
