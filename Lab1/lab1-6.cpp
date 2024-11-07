@@ -211,17 +211,30 @@ int main(int argc, char const *argv[])
 		// created by glm.
 		//
 		// Use glm::perspective to create a projection matrix
-		glm::mat4 Projection = glm::perspective(glm::radians(45), w_width/w_height, 1, 100);
+		//1
+		glm::mat4 projectionMatrix = glm::perspective(glm::radians(45.0f), (float)w_width / (float)w_height, 1.0f, 100.0f); //all values have to be float
 		// Use glm::translate and glm::rotate to create the
 		// model and view matrices.
-		//
+		glm::vec3 translate(0, 0, -5);
+		glm::mat4 viewMatrix = glm::translate(glm::mat4(1), translate);
+		
+		glm::vec3 rotate(g_rotation[0], g_rotation[1], 0);
+		glm::mat4 modelMatrix = glm::rotate(glm::mat4(1), glm::radians(rotate.x), glm::vec3(1, 0, 0));
+		modelMatrix = glm::rotate(modelMatrix, glm::radians(rotate.y), glm::vec3(0, 1, 0));
 		// Multiply your matrices in the correct order to get a
 		// modelViewProjection matrix and upload it to the appropriate
 		// uniform variable in vertex shader.
+		glm::mat4 modelViewProjectionMatrix = projectionMatrix * viewMatrix * modelMatrix;
+
+		GLuint mvp_location = glGetUniformLocation(shader_program, "mvp"); //2
+		glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(modelViewProjectionMatrix));
+
 		// -----------------------------------------------------------------------//
 	 
 		//-----------------------------------------------------------------------//
 		// Call glDrawElements as before
+		glBindVertexArray(vao); //4
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
 		//-----------------------------------------------------------------------//
 
 		glfwSwapBuffers (window);
