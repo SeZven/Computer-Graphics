@@ -24,6 +24,8 @@ GLuint shader_program;
 float g_rotation[2] = { 0,0 }; // g_rotation[0] = x_rotation, g_rotation[1] = y_rotation
 glm::vec3 camera_pos(0, 0, 2); // LAB 1.7
 float camera_rotation[2] = { 0,0 };
+float g_rotation2[2] = { 0,0 }; // Lab 1.8
+
 
 // Helper function to forward shader compilation errors to terminal.
 void checkShaderCompileError(GLint shaderID)
@@ -102,6 +104,20 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 	if ((key == GLFW_KEY_DOWN) && ((action == GLFW_PRESS) || (action == GLFW_REPEAT))) {
 		g_rotation[1] -= 0.1; //y
 	}
+	// LAB 1.8
+	if ((key == GLFW_KEY_F) && ((action == GLFW_PRESS) || (action == GLFW_REPEAT))) {
+		g_rotation2[0] -= 0.1; //x
+	}
+	if ((key == GLFW_KEY_H) && ((action == GLFW_PRESS) || (action == GLFW_REPEAT))) {
+		g_rotation2[0] += 0.1; //x
+	}
+	if ((key == GLFW_KEY_T) && ((action == GLFW_PRESS) || (action == GLFW_REPEAT))) {
+		g_rotation2[1] += 0.1; //y
+	}
+	if ((key == GLFW_KEY_G) && ((action == GLFW_PRESS) || (action == GLFW_REPEAT))) {
+		g_rotation2[1] -= 0.1; //y
+	}
+
 	//-------------------------------------------------------------------------//
 	// LAB 1.7
 	// Camera translation with WASDQE keys
@@ -178,6 +194,18 @@ int main(int argc, char const* argv[])
 		 0.5f,  0.5f,  0.5f  // vertex 7
 	};
 
+	float points2[] = { //Lab 1.8
+		// A cube has 8 vertices... offset by 2 in x direction
+		 1.5f, -0.5f, -0.5f, // vertex 0
+		 1.5f, -0.5f,  0.5f, // vertex 1
+		 1.5f,  0.5f, -0.5f, // vertex 2
+		 1.5f,  0.5f,  0.5f, // vertex 3
+		 2.5f, -0.5f, -0.5f, // vertex 4
+		 2.5f, -0.5f,  0.5f, // vertex 5
+		 2.5f,  0.5f, -0.5f, // vertex 6
+		 2.5f,  0.5f,  0.5f  // vertex 7
+	};
+
 	unsigned short faces[] = {
 		// ... and 12 triangular faces, defined by these vertex indices (counter-clockwise):
 		0, 3, 2,  0, 1, 3,  // left face
@@ -200,12 +228,28 @@ int main(int argc, char const* argv[])
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-
-
+	
 	GLuint ebo; //3
 	glGenBuffers(1, &ebo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(faces), faces, GL_STATIC_DRAW);
+
+
+	GLuint vao2;
+	glGenVertexArrays(1, &vao2);
+	glBindVertexArray(vao2);
+
+	GLuint vbo2;
+	glGenBuffers(1, &vbo2);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo2);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(points2), points2, GL_STATIC_DRAW);
+
+
+	glEnableVertexAttribArray(0); // need this twice?
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo); // same ebo
+	
 	//-------------------------------------------------------------------------//
 	//-------------------------------------------------------------------------//
 	//-------------------------------------------------------------------------//
@@ -256,6 +300,18 @@ int main(int argc, char const* argv[])
 		glBindVertexArray(vao); //4
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
 		//-----------------------------------------------------------------------//
+
+		// LAB 1.8 2nd cube
+		glm::vec3 rotate2(g_rotation2[0], g_rotation2[1], 0);
+		glm::mat4 modelMatrix2 = glm::rotate(glm::mat4(1), glm::radians(rotate2.x), glm::vec3(1, 0, 0));
+		modelMatrix2 = glm::rotate(modelMatrix2, glm::radians(rotate2.y), glm::vec3(0, 1, 0));
+
+		glm::mat4 modelViewProjectionMatrix2 = projectionMatrix * viewMatrix * modelMatrix2;
+
+		glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(modelViewProjectionMatrix2));
+
+		glBindVertexArray(vao2); //4
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
 
 		glfwSwapBuffers(window);
 	}

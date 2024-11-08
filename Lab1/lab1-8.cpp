@@ -195,15 +195,15 @@ int main(int argc, char const* argv[])
 	};
 
 	float points2[] = { //Lab 1.8
-		// A cube has 8 vertices...
-		-0.0f, -0.5f, -0.5f, // vertex 0
-		-0.0f, -0.5f,  0.5f, // vertex 1
-		-0.0f,  0.5f, -0.5f, // vertex 2
-		-0.0f,  0.5f,  0.5f, // vertex 3
-		 1.0f, -0.5f, -0.5f, // vertex 4
-		 1.0f, -0.5f,  0.5f, // vertex 5
-		 1.0f,  0.5f, -0.5f, // vertex 6
-		 1.0f,  0.5f,  0.5f  // vertex 7
+		// A cube has 8 vertices... offset by 2 in x direction
+		 1.5f, -0.5f, -0.5f, // vertex 0
+		 1.5f, -0.5f,  0.5f, // vertex 1
+		 1.5f,  0.5f, -0.5f, // vertex 2
+		 1.5f,  0.5f,  0.5f, // vertex 3
+		 2.5f, -0.5f, -0.5f, // vertex 4
+		 2.5f, -0.5f,  0.5f, // vertex 5
+		 2.5f,  0.5f, -0.5f, // vertex 6
+		 2.5f,  0.5f,  0.5f  // vertex 7
 	};
 
 	unsigned short faces[] = {
@@ -221,14 +221,23 @@ int main(int argc, char const* argv[])
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
-	GLuint vao2;
-	glGenVertexArrays(1, &vao2);
-	glBindVertexArray(vao2);
-
 	GLuint vbo;
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+	GLuint ebo; //3
+	glGenBuffers(1, &ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(faces), faces, GL_STATIC_DRAW);
+
+
+	GLuint vao2;
+	glGenVertexArrays(1, &vao2);
+	glBindVertexArray(vao2);
 
 	GLuint vbo2;
 	glGenBuffers(1, &vbo2);
@@ -239,11 +248,8 @@ int main(int argc, char const* argv[])
 	glEnableVertexAttribArray(0); // need this twice?
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo); // same ebo
 
-	GLuint ebo; //3
-	glGenBuffers(1, &ebo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(faces), faces, GL_STATIC_DRAW);
 	//-------------------------------------------------------------------------//
 	//-------------------------------------------------------------------------//
 	//-------------------------------------------------------------------------//
