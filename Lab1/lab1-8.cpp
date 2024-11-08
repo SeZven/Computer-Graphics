@@ -24,6 +24,8 @@ GLuint shader_program;
 float g_rotation[2] = { 0,0 }; // g_rotation[0] = x_rotation, g_rotation[1] = y_rotation
 glm::vec3 camera_pos(0, 0, 2); // LAB 1.7
 float camera_rotation[2] = { 0,0 };
+float g_rotation2[2] = { 0,0 }; // Lab 1.8
+
 
 // Helper function to forward shader compilation errors to terminal.
 void checkShaderCompileError(GLint shaderID)
@@ -102,6 +104,20 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 	if ((key == GLFW_KEY_DOWN) && ((action == GLFW_PRESS) || (action == GLFW_REPEAT))) {
 		g_rotation[1] -= 0.1; //y
 	}
+	// LAB 1.8
+	if ((key == GLFW_KEY_F) && ((action == GLFW_PRESS) || (action == GLFW_REPEAT))) {
+		g_rotation2[0] -= 0.1; //x
+	}
+	if ((key == GLFW_KEY_H) && ((action == GLFW_PRESS) || (action == GLFW_REPEAT))) {
+		g_rotation2[0] += 0.1; //x
+	}
+	if ((key == GLFW_KEY_T) && ((action == GLFW_PRESS) || (action == GLFW_REPEAT))) {
+		g_rotation2[1] += 0.1; //y
+	}
+	if ((key == GLFW_KEY_G) && ((action == GLFW_PRESS) || (action == GLFW_REPEAT))) {
+		g_rotation2[1] -= 0.1; //y
+	}
+
 	//-------------------------------------------------------------------------//
 	// LAB 1.7
 	// Camera translation with WASDQE keys
@@ -278,6 +294,18 @@ int main(int argc, char const* argv[])
 		glBindVertexArray(vao); //4
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
 		//-----------------------------------------------------------------------//
+
+		// LAB 1.8 2nd cube
+		glm::vec3 rotate2(g_rotation2[0], g_rotation2[1], 0);
+		glm::mat4 modelMatrix2 = glm::rotate(glm::mat4(1), glm::radians(rotate2.x), glm::vec3(1, 0, 0));
+		modelMatrix2 = glm::rotate(modelMatrix2, glm::radians(rotate2.y), glm::vec3(0, 1, 0));
+
+		glm::mat4 modelViewProjectionMatrix2 = projectionMatrix * viewMatrix * modelMatrix2;
+
+		glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(modelViewProjectionMatrix2));
+
+		glBindVertexArray(vao2); //4
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
 
 		glfwSwapBuffers(window);
 	}
