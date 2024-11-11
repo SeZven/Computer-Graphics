@@ -14,7 +14,9 @@
 #include <glm/mat4x4.hpp> // glm::mat4
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 #include <glm/gtc/type_ptr.hpp> //glm::value_ptr
-
+// Lab 1.10
+#include "glm/gtx/string_cast.hpp" //glm::to_string
+bool print = false;
 
 // Read the code for the shader programs from file
 std::string vertex_shader_str =	readFile("../lab1-6_vs.glsl");
@@ -225,6 +227,16 @@ int main(int argc, char const *argv[])
 		// modelViewProjection matrix and upload it to the appropriate
 		// uniform variable in vertex shader.
 		glm::mat4 modelViewProjectionMatrix = projectionMatrix * viewMatrix * modelMatrix;
+
+		// Lab 1.10 (glm has no member to string)
+		//#include "glm/ext.hpp"
+		//#include "glm/gtx/string_cast.hpp"
+		if(!print) {
+		std::cout << glm::to_string(modelMatrix) << std::endl;
+		std::cout << glm::to_string(viewMatrix) << std::endl;
+		std::cout << glm::to_string(projectionMatrix) << std::endl;
+		print = true;
+		}
 
 		GLuint mvp_location = glGetUniformLocation(shader_program, "mvp"); //2
 		glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(modelViewProjectionMatrix));
