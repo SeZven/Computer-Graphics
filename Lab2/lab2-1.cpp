@@ -23,7 +23,7 @@ bool print = false;
 
 // Read the code for the shader programs from file
 std::string vertex_shader_str = readFile("../lab1-6_vs.glsl");
-std::string fragment_shader_str = readFile("../lab1-6_fs.glsl");
+std::string fragment_shader_str = readFile("../lab2-1_fs.glsl");
 GLuint shader_program;
 
 float g_rotation[2] = { 0,0 }; // g_rotation[0] = x_rotation, g_rotation[1] = y_rotation 
