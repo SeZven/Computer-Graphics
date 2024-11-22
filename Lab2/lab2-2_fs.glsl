@@ -1,8 +1,9 @@
 #version 410
 
 out vec3 frag_colour;
-in vec3 normal;
-in vec3 position;
+
+in vec3 frag_normal;
+in vec3 frag_position;
 
 uniform int light_count;
 uniform vec3 light_position[4]; // can have up to 4 light sources

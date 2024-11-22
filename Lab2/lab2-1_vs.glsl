@@ -20,7 +20,7 @@ void main () {
   // Pass the original vertex position and normal to the fragment shader   
   frag_position = vp.xyz;
   //frag_normal = normal;
-  frag_normal = normalize(mat3(view * model) * normal); 
+  frag_normal = mat3(view * model) * normal; 
 
 };
 
