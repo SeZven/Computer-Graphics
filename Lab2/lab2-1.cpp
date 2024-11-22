@@ -316,8 +316,17 @@ int main(int argc, char const* argv[])
 			print = true;
 		}
 
-		GLuint mvp_location = glGetUniformLocation(shader_program, "mvp"); //2
-		glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(modelViewProjectionMatrix));
+		
+		
+		//GLuint mvp_location = glGetUniformLocation(shader_program, "mvp"); //2
+		//glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(modelViewProjectionMatrix));
+		//pass all matrixes instead of mvp
+		GLuint projection_location = glGetUniformLocation(shader_program, "projection"); //2
+		glUniformMatrix4fv(projection_location, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+		GLuint view_location = glGetUniformLocation(shader_program, "view"); //2
+		glUniformMatrix4fv(view_location, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+		GLuint model_location = glGetUniformLocation(shader_program, "model"); //2
+		glUniformMatrix4fv(model_location, 1, GL_FALSE, glm::value_ptr(modelMatrix));
 
 		// -----------------------------------------------------------------------//
 
