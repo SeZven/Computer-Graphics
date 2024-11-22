@@ -23,6 +23,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Lab2\lab2-1_fs.glsl" />
+    <None Include="..\Lab2\lab2-1_vs.glsl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{446FB582-58C4-4A77-A66C-BF6F4156908B}</ProjectGuid>

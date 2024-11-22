@@ -22,7 +22,7 @@
 bool print = false;
 
 // Read the code for the shader programs from file
-std::string vertex_shader_str = readFile("../lab1-6_vs.glsl");
+std::string vertex_shader_str = readFile("../lab2-1_vs.glsl");
 std::string fragment_shader_str = readFile("../lab2-1_fs.glsl");
 GLuint shader_program;
 
@@ -94,16 +94,16 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 	// COPY YOUR CODE FROM BEFORE HERE
 	// Update rotation angle here, for example
 	if ((key == GLFW_KEY_LEFT) && ((action == GLFW_PRESS) || (action == GLFW_REPEAT))) {
-		g_rotation[0] -= 0.1; //x
+		g_rotation[0] -= 1; //x adjusted rotation speed
 	}
 	if ((key == GLFW_KEY_RIGHT) && ((action == GLFW_PRESS) || (action == GLFW_REPEAT))) {
-		g_rotation[0] += 0.1; //x
+		g_rotation[0] += 1; //x
 	}
 	if ((key == GLFW_KEY_UP) && ((action == GLFW_PRESS) || (action == GLFW_REPEAT))) {
-		g_rotation[1] += 0.1; //y
+		g_rotation[1] += 1; //y
 	}
 	if ((key == GLFW_KEY_DOWN) && ((action == GLFW_PRESS) || (action == GLFW_REPEAT))) {
-		g_rotation[1] -= 0.1; //y
+		g_rotation[1] -= 1; //y
 	}
 	//-------------------------------------------------------------------------//
 	//-------------------------------------------------------------------------//
