@@ -158,37 +158,37 @@ int main(int argc, char const* argv[])
 	// Lab 2.1 points and faces
 	float points[] = {
 		// A cube has 8 vertices, but now we have three copies of each one:
-	  -0.5, -0.5, -0.5, 1, //0 0
+		-0.5, -0.5, -0.5, 1, //0 0
 		-0.5, -0.5, -0.5, 1, //0 1
 		-0.5, -0.5, -0.5, 1, //0 2
+		//			
+		-0.5, -0.5,  0.5, 1, //1 3
+		-0.5, -0.5,  0.5, 1, //1 4
+		-0.5, -0.5,  0.5, 1, //1 5
 		//
-	  -0.5, -0.5,  0.5, 1, //1 3
-	  -0.5, -0.5,  0.5, 1, //1 4
-	  -0.5, -0.5,  0.5, 1, //1 5
-	  //
-	-0.5,  0.5, -0.5, 1, //2 6
-	-0.5,  0.5, -0.5, 1, //2 7
-	-0.5,  0.5, -0.5, 1, //2 8
-	//
-  -0.5,  0.5,  0.5, 1, //3 9
-  -0.5,  0.5,  0.5, 1, //3 10
-  -0.5,  0.5,  0.5, 1, //3 11
-  //
-0.5, -0.5, -0.5, 1, //4 12
-0.5, -0.5, -0.5, 1, //4 13
-0.5, -0.5, -0.5, 1, //4 14
-//
-0.5, -0.5,  0.5, 1, //5 15
-0.5, -0.5,  0.5, 1, //5 16
-0.5, -0.5,  0.5, 1, //5 17
-//
-0.5,  0.5, -0.5, 1, //6 18
-0.5,  0.5, -0.5, 1, //6 19
-0.5,  0.5, -0.5, 1, //6 20
-//
-0.5,  0.5,  0.5, 1, //7 21
-0.5,  0.5,  0.5, 1, //7 22
-0.5,  0.5,  0.5, 1, //7 23
+		-0.5,  0.5, -0.5, 1, //2 6
+		-0.5,  0.5, -0.5, 1, //2 7
+		-0.5,  0.5, -0.5, 1, //2 8
+		//
+		-0.5,  0.5,  0.5, 1, //3 9
+		-0.5,  0.5,  0.5, 1, //3 10
+		-0.5,  0.5,  0.5, 1, //3 11
+		//
+		0.5, -0.5, -0.5, 1, //4 12
+		0.5, -0.5, -0.5, 1, //4 13
+		0.5, -0.5, -0.5, 1, //4 14
+		//
+		0.5, -0.5,  0.5, 1, //5 15
+		0.5, -0.5,  0.5, 1, //5 16
+		0.5, -0.5,  0.5, 1, //5 17
+		//
+		0.5,  0.5, -0.5, 1, //6 18
+		0.5,  0.5, -0.5, 1, //6 19
+		0.5,  0.5, -0.5, 1, //6 20
+		//
+		0.5,  0.5,  0.5, 1, //7 21
+		0.5,  0.5,  0.5, 1, //7 22
+		0.5,  0.5,  0.5, 1, //7 23
 	};
 
 
@@ -214,20 +214,59 @@ int main(int argc, char const* argv[])
 		5, 14, 17 // 1 4 5
 	};
 
-	GLuint vao; //2
+	glm::vec4 normals[24]; // Each vertex has a normal
+
+	// Used AI to create this computation of normals
+	for (int i = 0; i < sizeof(faces) / sizeof(faces[0]); i += 3) {
+		// Indices of the vertices of the triangle
+		unsigned short idx1 = faces[i];
+		unsigned short idx2 = faces[i + 1];
+		unsigned short idx3 = faces[i + 2];
+
+		// Retrieve the vertex positions from points[]
+		glm::vec3 p1(points[idx1 * 4], points[idx1 * 4 + 1], points[idx1 * 4 + 2]);
+		glm::vec3 p2(points[idx2 * 4], points[idx2 * 4 + 1], points[idx2 * 4 + 2]);
+		glm::vec3 p3(points[idx3 * 4], points[idx3 * 4 + 1], points[idx3 * 4 + 2]);
+
+		// Calculate the normal vector
+		glm::vec3 normal = glm::normalize(glm::cross(p2 - p1, p3 - p1)); //Formula in task
+
+		// Assign the normal to each vertex of the triangle
+		normals[idx1] = glm::vec4(normal, 0); // w = 0 for direction
+		normals[idx2] = glm::vec4(normal, 0);
+		normals[idx3] = glm::vec4(normal, 0);
+	}
+
+	GLuint vao; //1
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
-	GLuint vbo;
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
+	GLuint vbo_positions; //2
+	glGenBuffers(1, &vbo_positions);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_positions); // Bind the VBO for positions
+	
+	glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW); //3 Upload data to GPU
 
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0); //4 Enable the position attribute (index 0)
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0); //5
+	// 0 -> attribute index, 3 -> number of components (x, y, z), GL_FLOAT -> type, GL_FALSE -> no normalization
+	// 4 * sizeof(float) -> stride (4 floats per vertex)
+	// (void*)0 -> offset (starting point of position data in VBO)
+
+	GLuint vbo_normals; //6
+	glGenBuffers(1, &vbo_normals);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_normals); // Bind the VBO for normals
+	glBufferData(GL_ARRAY_BUFFER, sizeof(normals), normals, GL_STATIC_DRAW); // Upload normal data to GPU
+
+	glEnableVertexAttribArray(1); //7 Enable the normal attribute (index 1)
+
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0); //8
+	// 1 -> attribute index for normals, 3 -> number of components (x, y, z), GL_FLOAT -> type
+	// GL_FALSE -> no normalization, 4 * sizeof(float) -> stride (same as positions), (void*)0 -> offset
 
 
-	GLuint ebo; //3
+	GLuint ebo; //9
 	glGenBuffers(1, &ebo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(faces), faces, GL_STATIC_DRAW);
