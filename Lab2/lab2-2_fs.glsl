@@ -14,7 +14,9 @@ vec3 lambertian_brdf( vec3 in_direction, vec3 out_direction, vec3 normal )
 {
   // YOUR CODE GOES HERE
   // Implement a Lambertian BRDF 
-  return 0;
+  // For a Lambertian surface, BRDF = albedo / PI
+  vec3 albedo = vec3(1, 1, 1);
+  return albedo / 3.14159265359; 
 }
 
 void main () {
@@ -25,19 +27,24 @@ void main () {
     // YOUR CODE GOES HERE
     // Implement Equation 1 from the lab instructions: (incoming light colour) * (brdf) * (cosine)
     // AI used
-    // Calculate the direction of the light
-    vec3 lightDir = normalize(light_position[l] - frag_position);
-        
-    // Calculate the surface normal (already normalized)
+    // Compute direction to light and normalize
+    vec3 light_dir = normalize(light_position[l] - frag_position);
+    
+    // Normalize the surface normal
     vec3 normal = normalize(frag_normal);
+    
+    // Compute the cosine factor (N · L)
+    float NdotL = max(dot(normal, light_dir), 0.0);
 
-    // Compute the dot product between the normal and the light direction
-    float cosTheta = max(dot(normal, lightDir), 0.0);
-        
-    // Lambertian BRDF (albedo / pi), we use the light color for the color of the surface
-    vec3 lightContribution = light_colour[l] * cosTheta; // Light contribution
+    // If the light is not contributing (NdotL <= 0), skip it
+    if (NdotL > 0.0) {
+      // Evaluate the Lambertian BRDF
+      vec3 brdf = lambertian_brdf(light_dir, vec3(0), normal);
 
-    // Accumulate the lighting contributions from all light sources
-    frag_colour += lightContribution;
+      // Accumulate the contribution from this light source
+      // Equation: incoming light colour * BRDF * cosine factor
+      vec3 increasedLightColor =  light_colour[l] * 3.0; // Question 1
+      frag_colour += increasedLightColor * brdf * NdotL;
+    }
   }
 }
