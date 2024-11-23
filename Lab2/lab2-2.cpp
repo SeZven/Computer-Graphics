@@ -329,6 +329,23 @@ int main(int argc, char const* argv[])
 		GLuint model_location = glGetUniformLocation(shader_program, "model"); //2
 		glUniformMatrix4fv(model_location, 1, GL_FALSE, glm::value_ptr(modelMatrix));
 
+
+		// Lab 2.2
+		// Define light source data
+		glm::vec3 light_positions[] = { glm::vec3(0, 5, 2) }; // Light position
+		glm::vec3 light_colors[] = { glm::vec3(1, 1, 1) }; // White light color
+
+		// Pass the light data to the shader
+		GLuint light_count_location = glGetUniformLocation(shader_program, "light_count");
+		glUniform1i(light_count_location, 1); // One light source
+
+		GLuint light_positions_location = glGetUniformLocation(shader_program, "light_position");
+		glUniform3fv(light_positions_location, 1, glm::value_ptr(light_positions[0])); // Light position
+
+		GLuint light_colors_location = glGetUniformLocation(shader_program, "light_colour");
+		glUniform3fv(light_colors_location, 1, glm::value_ptr(light_colors[0])); // Light color
+
+
 		// -----------------------------------------------------------------------//
 
 		//-----------------------------------------------------------------------//
