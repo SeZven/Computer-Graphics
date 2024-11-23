@@ -119,7 +119,11 @@ static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 }
 
-
+// Use python instead
+//double lambertian_brdf(glm::vec3 in_direction, glm::vec3 out_direction, glm::vec3 normal) {
+	// albedo = 1, since white
+	//return 1 / 3.14159265359;
+//}
 
 
 int main(int argc, char const* argv[])
