@@ -24,8 +24,12 @@
 #include <glm/gtc/type_ptr.hpp> //glm::value_ptr
 
 // Read the code for the shader programs from file
-std::string vertex_shader_str = readFile("../lab2-2_vs.glsl");
-std::string fragment_shader_str = readFile("../lab2-4_fs.glsl");
+// Lab 2-4
+//std::string vertex_shader_str = readFile("../lab2-2_vs.glsl");
+//std::string fragment_shader_str = readFile("../lab2-4_fs.glsl");
+// Lab 2-5
+std::string vertex_shader_str = readFile("../lab2-5_vs.glsl");
+std::string fragment_shader_str = readFile("../lab2-5_fs.glsl");
 GLuint shader_program;
 
 float x_rotation = 0;
