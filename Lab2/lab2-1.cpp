@@ -1,7 +1,3 @@
-// Replace with your own code, starting from what you had in Lab 1,
-// but use the geometry defined below.
-//Code from Lab 1.6
-
 #include <GL/glew.h>
 #include <cmath>
 
@@ -17,16 +13,16 @@
 #include <glm/mat4x4.hpp> // glm::mat4
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 #include <glm/gtc/type_ptr.hpp> //glm::value_ptr
-// Lab 1.10
-#include "glm/gtx/string_cast.hpp" //glm::to_string
-bool print = false;
+
 
 // Read the code for the shader programs from file
 std::string vertex_shader_str = readFile("../lab2-1_vs.glsl");
 std::string fragment_shader_str = readFile("../lab2-1_fs.glsl");
 GLuint shader_program;
 
-float g_rotation[2] = { 0,0 }; // g_rotation[0] = x_rotation, g_rotation[1] = y_rotation 
+float x_rotation = 0;
+float y_rotation = 0;
+
 
 // Helper function to forward shader compilation errors to terminal.
 void checkShaderCompileError(GLint shaderID)
@@ -93,19 +89,13 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 	//-------------------------------------------------------------------------//
 	// COPY YOUR CODE FROM BEFORE HERE
 	// Update rotation angle here, for example
-	if ((key == GLFW_KEY_LEFT) && ((action == GLFW_PRESS) || (action == GLFW_REPEAT))) {
-		g_rotation[0] -= 1; //x adjusted rotation speed
+	if (action == GLFW_PRESS || action == GLFW_REPEAT) {
+		if (key == GLFW_KEY_LEFT) y_rotation -= 0.05f;
+		if (key == GLFW_KEY_RIGHT) y_rotation += 0.05f;
+		if (key == GLFW_KEY_UP) x_rotation += 0.05f;
+		if (key == GLFW_KEY_DOWN) x_rotation -= 0.05f;
+
 	}
-	if ((key == GLFW_KEY_RIGHT) && ((action == GLFW_PRESS) || (action == GLFW_REPEAT))) {
-		g_rotation[0] += 1; //x
-	}
-	if ((key == GLFW_KEY_UP) && ((action == GLFW_PRESS) || (action == GLFW_REPEAT))) {
-		g_rotation[1] += 1; //y
-	}
-	if ((key == GLFW_KEY_DOWN) && ((action == GLFW_PRESS) || (action == GLFW_REPEAT))) {
-		g_rotation[1] -= 1; //y
-	}
-	//-------------------------------------------------------------------------//
 	//-------------------------------------------------------------------------//
 }
 
@@ -117,7 +107,6 @@ static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
 }
-
 
 
 
@@ -155,194 +144,222 @@ int main(int argc, char const* argv[])
 	//-------------------------------------------------------------------------//
 	// COPY FROM lab1-5
 	// Geometry, VBO, EBO, VAO
-	// Lab 2.1 points and faces
-	float points[] = {
-		// A cube has 8 vertices, but now we have three copies of each one:
-		-0.5, -0.5, -0.5, 1, //0 0
-		-0.5, -0.5, -0.5, 1, //0 1
-		-0.5, -0.5, -0.5, 1, //0 2
-		//			
-		-0.5, -0.5,  0.5, 1, //1 3
-		-0.5, -0.5,  0.5, 1, //1 4
-		-0.5, -0.5,  0.5, 1, //1 5
-		//
-		-0.5,  0.5, -0.5, 1, //2 6
-		-0.5,  0.5, -0.5, 1, //2 7
-		-0.5,  0.5, -0.5, 1, //2 8
-		//
-		-0.5,  0.5,  0.5, 1, //3 9
-		-0.5,  0.5,  0.5, 1, //3 10
-		-0.5,  0.5,  0.5, 1, //3 11
-		//
-		0.5, -0.5, -0.5, 1, //4 12
-		0.5, -0.5, -0.5, 1, //4 13
-		0.5, -0.5, -0.5, 1, //4 14
-		//
-		0.5, -0.5,  0.5, 1, //5 15
-		0.5, -0.5,  0.5, 1, //5 16
-		0.5, -0.5,  0.5, 1, //5 17
-		//
-		0.5,  0.5, -0.5, 1, //6 18
-		0.5,  0.5, -0.5, 1, //6 19
-		0.5,  0.5, -0.5, 1, //6 20
-		//
-		0.5,  0.5,  0.5, 1, //7 21
-		0.5,  0.5,  0.5, 1, //7 22
-		0.5,  0.5,  0.5, 1, //7 23
-	};
-
-
-	unsigned short faces[] = {
-		// ... and 12 triangular faces, 
-		// defined by the following vertex indices:
-		0, 9, 6, // 0 3 2
-		0, 3, 9, // 0 1 3
-		//
-		1, 7, 18, // 0 2 6
-		1, 18, 12, // 0 6 4
-		//
-		13, 19, 15, // 4 6 5
-		15, 19, 21, // 5 6 7
-		//
-		16, 22, 10, // 5 7 3
-		16, 10, 4, // 5 3 1
-		//
-		8, 11, 23, // 2 3 7
-		8, 23, 20, // 2 7 6
-		//
-		2, 14, 5, // 0 4 1
-		5, 14, 17 // 1 4 5
-	};
-
-	glm::vec4 normals[24]; // Each vertex has a normal
-
-	// Used AI to create this computation of normals
-	for (int i = 0; i < sizeof(faces) / sizeof(faces[0]); i += 3) {
-		// Indices of the vertices of the triangle
-		unsigned short idx1 = faces[i];
-		unsigned short idx2 = faces[i + 1];
-		unsigned short idx3 = faces[i + 2];
-
-		// Retrieve the vertex positions from points[]
-		glm::vec3 p1(points[idx1 * 4], points[idx1 * 4 + 1], points[idx1 * 4 + 2]);
-		glm::vec3 p2(points[idx2 * 4], points[idx2 * 4 + 1], points[idx2 * 4 + 2]);
-		glm::vec3 p3(points[idx3 * 4], points[idx3 * 4 + 1], points[idx3 * 4 + 2]);
-
-		// Calculate the normal vector
-		glm::vec3 normal = glm::normalize(glm::cross(p2 - p1, p3 - p1)); //Formula in task
-
-		// Assign the normal to each vertex of the triangle
-		normals[idx1] = glm::vec4(normal, 0); // w = 0 for direction
-		normals[idx2] = glm::vec4(normal, 0);
-		normals[idx3] = glm::vec4(normal, 0);
-	}
-
-	GLuint vao; //1
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-
-	GLuint vbo_positions; //2
-	glGenBuffers(1, &vbo_positions);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_positions); // Bind the VBO for positions
+	 
 	
-	glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW); //3 Upload data to GPU
+// Replace with your own code, starting from what you had in Lab 1,
+// but use the geometry defined below.
 
-	glEnableVertexAttribArray(0); //4 Enable the position attribute (index 0)
+float points[] = {
+	// A cube has 8 vertices, but now we have three copies of each one:
+  -0.5, -0.5, -0.5, 1, //0 0
+	-0.5, -0.5, -0.5, 1, //0 1
+	-0.5, -0.5, -0.5, 1, //0 2
+	//
+  -0.5, -0.5,  0.5, 1, //1 3
+  -0.5, -0.5,  0.5, 1, //1 4
+  -0.5, -0.5,  0.5, 1, //1 5
+	//
+  -0.5,  0.5, -0.5, 1, //2 6
+  -0.5,  0.5, -0.5, 1, //2 7
+  -0.5,  0.5, -0.5, 1, //2 8
+	//
+  -0.5,  0.5,  0.5, 1, //3 9
+  -0.5,  0.5,  0.5, 1, //3 10
+  -0.5,  0.5,  0.5, 1, //3 11
+	//
+  0.5, -0.5, -0.5, 1, //4 12
+  0.5, -0.5, -0.5, 1, //4 13
+  0.5, -0.5, -0.5, 1, //4 14
+	//
+  0.5, -0.5,  0.5, 1, //5 15
+  0.5, -0.5,  0.5, 1, //5 16
+  0.5, -0.5,  0.5, 1, //5 17
+	//
+  0.5,  0.5, -0.5, 1, //6 18
+  0.5,  0.5, -0.5, 1, //6 19
+  0.5,  0.5, -0.5, 1, //6 20
+	//
+  0.5,  0.5,  0.5, 1, //7 21
+  0.5,  0.5,  0.5, 1, //7 22
+  0.5,  0.5,  0.5, 1, //7 23
+};
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0); //5
-	// 0 -> attribute index, 3 -> number of components (x, y, z), GL_FLOAT -> type, GL_FALSE -> no normalization
-	// 4 * sizeof(float) -> stride (4 floats per vertex)
-	// (void*)0 -> offset (starting point of position data in VBO)
-
-	GLuint vbo_normals; //6
-	glGenBuffers(1, &vbo_normals);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_normals); // Bind the VBO for normals
-	glBufferData(GL_ARRAY_BUFFER, sizeof(normals), normals, GL_STATIC_DRAW); // Upload normal data to GPU
-
-	glEnableVertexAttribArray(1); //7 Enable the normal attribute (index 1)
-
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0); //8
-	// 1 -> attribute index for normals, 3 -> number of components (x, y, z), GL_FLOAT -> type
-	// GL_FALSE -> no normalization, 4 * sizeof(float) -> stride (same as positions), (void*)0 -> offset
 
 
-	GLuint ebo; //9
-	glGenBuffers(1, &ebo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(faces), faces, GL_STATIC_DRAW);
-	//-------------------------------------------------------------------------//
-	//-------------------------------------------------------------------------//
-	//-------------------------------------------------------------------------//
+unsigned short faces[]= {
+	// ... and 12 triangular faces,
+	// defined by the following vertex indices:
+	0, 9, 6, // 0 3 2
+	0, 3, 9, // 0 1 3
+	//
+	1, 7, 18, // 0 2 6
+	1, 18, 12, // 0 6 4
+	//
+	13, 19, 15, // 4 6 5
+	15, 19, 21, // 5 6 7
+	//
+	16, 22, 10, // 5 7 3
+	16, 10, 4, // 5 3 1
+	//
+	8, 11, 23, // 2 3 7
+	8, 23, 20, // 2 7 6
+	//
+	2, 14, 5, // 0 4 1
+	5, 14, 17 // 1 4 5
+};
 
+float normals[sizeof(points) / sizeof(points[0])];	//Normals array creation
 
-	while (!glfwWindowShouldClose(window))
-	{
-		// Update other events like keyboard/mouse input.
-		glfwPollEvents();
-		// Clear the drawing surface before drawing something new.
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		glfwGetFramebufferSize(window, &w_width, &w_height);
-
-		//-----------------------------------------------------------------------//
-		// YOUR CODE GOES HERE
-		//
-		// Replace your hand-crafted matrices from lab1-5.cpp with ones
-		// created by glm.
-		//
-		// Use glm::perspective to create a projection matrix
-		//1
-		glm::mat4 projectionMatrix = glm::perspective(glm::radians(45.0f), (float)w_width / (float)w_height, 1.0f, 100.0f); //all values have to be float
-		// Use glm::translate and glm::rotate to create the
-		// model and view matrices.
-		glm::vec3 translate(0, 0, -5);
-		glm::mat4 viewMatrix = glm::translate(glm::mat4(1), translate);
-
-		glm::vec3 rotate(g_rotation[0], g_rotation[1], 0);
-		glm::mat4 modelMatrix = glm::rotate(glm::mat4(1), glm::radians(rotate.x), glm::vec3(1, 0, 0));
-		modelMatrix = glm::rotate(modelMatrix, glm::radians(rotate.y), glm::vec3(0, 1, 0));
-		// Multiply your matrices in the correct order to get a
-		// modelViewProjection matrix and upload it to the appropriate
-		// uniform variable in vertex shader.
-		glm::mat4 modelViewProjectionMatrix = projectionMatrix * viewMatrix * modelMatrix;
-
-		// Lab 1.10 (glm has no member to string)
-		//#include "glm/ext.hpp"
-		//#include "glm/gtx/string_cast.hpp"
-		if (!print) {
-			std::cout << glm::to_string(modelMatrix) << std::endl;
-			std::cout << glm::to_string(viewMatrix) << std::endl;
-			std::cout << glm::to_string(projectionMatrix) << std::endl;
-			print = true;
-		}
-
-		
-		
-		//GLuint mvp_location = glGetUniformLocation(shader_program, "mvp"); //2
-		//glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(modelViewProjectionMatrix));
-		//pass all matrixes instead of mvp
-		GLuint projection_location = glGetUniformLocation(shader_program, "projection"); //2
-		glUniformMatrix4fv(projection_location, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
-		GLuint view_location = glGetUniformLocation(shader_program, "view"); //2
-		glUniformMatrix4fv(view_location, 1, GL_FALSE, glm::value_ptr(viewMatrix));
-		GLuint model_location = glGetUniformLocation(shader_program, "model"); //2
-		glUniformMatrix4fv(model_location, 1, GL_FALSE, glm::value_ptr(modelMatrix));
-
-		// -----------------------------------------------------------------------//
-
-		//-----------------------------------------------------------------------//
-		// Call glDrawElements as before
-		glBindVertexArray(vao); //4
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
-		//-----------------------------------------------------------------------//
-
-		glfwSwapBuffers(window);
-	}
-
-	// close GL context and any other GLFW resources
-	glfwTerminate();
-	exit(EXIT_SUCCESS);
+// Initialisation
+for (size_t i = 0; i < sizeof(normals) / sizeof(normals[0]); i++) {
+	normals[i] = 0.0f;
 }
+
+// Normals calculus for each triangle
+for (size_t i = 0; i < sizeof(faces) / sizeof(faces[0]); i += 3) {
+	// Vertex indices
+	unsigned short i0 = faces[i];
+	unsigned short i1 = faces[i + 1];
+	unsigned short i2 = faces[i + 2];
+
+	// Extracting the coordinates of the vertices (x, y, z)
+	glm::vec3 p0(points[i0 * 4], points[i0 * 4 + 1], points[i0 * 4 + 2]);
+	glm::vec3 p1(points[i1 * 4], points[i1 * 4 + 1], points[i1 * 4 + 2]);
+	glm::vec3 p2(points[i2 * 4], points[i2 * 4 + 1], points[i2 * 4 + 2]);
+
+	// Calculating the vectors
+	glm::vec3 v1 = p1 - p0;
+	glm::vec3 v2 = p2 - p0;
+
+	// Calculating the normal of the triangle
+	glm::vec3 normal = glm::normalize(glm::cross(v1, v2));  // Cross product v1.v2 or (p1-p0).(p2-p0)
+
+	// Adding the calculated normal to each vertex of the triangle
+	normals[i0 * 4] += normal.x;
+	normals[i0 * 4 + 1] += normal.y;
+	normals[i0 * 4 + 2] += normal.z;
+
+	normals[i1 * 4] += normal.x;
+	normals[i1 * 4 + 1] += normal.y;
+	normals[i1 * 4 + 2] += normal.z;
+
+	normals[i2 * 4] += normal.x;
+	normals[i2 * 4 + 1] += normal.y;
+	normals[i2 * 4 + 2] += normal.z;
+}
+
+// Normalizing the normals for each vertex
+for (size_t i = 0; i < sizeof(points) / sizeof(points[0]); i += 4) {
+	glm::vec3 normal(normals[i], normals[i + 1], normals[i + 2]);
+	normal = glm::normalize(normal);
+
+	normals[i] = normal.x;
+	normals[i + 1] = normal.y;
+	normals[i + 2] = normal.z;
+}
+
+
+// Creating and binding the VAO (position, normals, texture coordinates)
+GLuint vao;
+glGenVertexArrays(1, &vao);
+glBindVertexArray(vao);
+
+// Creating and filling the VBO (vertex coordinates)
+GLuint vbo;
+glGenBuffers(1, &vbo);
+glBindBuffer(GL_ARRAY_BUFFER, vbo);
+glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
+
+// Attribute for the position
+glEnableVertexAttribArray(0);
+glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0);
+// Index 0: 3 components for the position (x, y, z)
+// A vertex = 4 coordinates, so 4 * sizeof...
+// offset = 0 since positions start at the beginning of the data
+
+// Creating and filling the VBO (normals)
+GLuint vbo_normals;
+glGenBuffers(1, &vbo_normals);
+glBindBuffer(GL_ARRAY_BUFFER, vbo_normals);
+glBufferData(GL_ARRAY_BUFFER, sizeof(normals), normals, GL_STATIC_DRAW);
+
+glEnableVertexAttribArray(2);
+glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0);
+
+
+// Creating and filling the EBO (defines the vertex indices that form the triangles of the cube)
+GLuint ebo;
+glGenBuffers(1, &ebo);
+glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(faces), faces, GL_STATIC_DRAW);
+//-------------------------------------------------------------------------//
+
+while (!glfwWindowShouldClose(window))
+{
+	// Update other events like keyboard/mouse input.
+	glfwPollEvents();
+	// Clear the drawing surface before drawing something new.
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glfwGetFramebufferSize(window, &w_width, &w_height);
+
+	//-----------------------------------------------------------------------//
+	// YOUR CODE GOES HERE
+	//
+	// Replace your hand-crafted matrices from lab1-5.cpp with ones
+	// created by glm.
+	glm::mat4 modelMatrix;
+	glm::mat4 viewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -2.0f));
+	glm::mat4 rotate_x = glm::rotate(glm::mat4(1.0f), x_rotation, glm::vec3(1.0f, 0.0f, 0.0f));
+	glm::mat4 rotate_y = glm::rotate(glm::mat4(1.0f), y_rotation, glm::vec3(0.0f, 1.0f, 0.0f));
+
+	//
+	// Use glm::perspective to create a projection matrix
+	const float fov = 0.7854f;           // 45 degrees in radians       fov and aspect are other options that are not in the course 
+	const float aspect = 1.0f;
+	const float near = 1.0f;             // near and far are fundamental 
+	const float far = 10.0f;
+	glm::mat4 projectionMatrix = glm::perspective(0.7854, 1.0, 1.0, 10.0); // fov, aspect (width and height ratio of the window), near, far
+
+	//
+	// Use glm::translate and glm::rotate to create the
+	// model and view matrices.
+	modelMatrix = rotate_y * rotate_x;
+
+	//
+	// Multiply your matrices in the correct order to get a
+	// modelViewProjection matrix and upload it to the appropriate
+	// uniform variable in the vertex shader.
+	// 
+	// I DO IT IN THE VERTEX SHADER 
+	// -----------------------------------------------------------------------//
+
+	//-----------------------------------------------------------------------//
+	// Call glDrawElements as before
+	// After loading and linking the shader program
+	GLint modelLoc = glGetUniformLocation(shader_program, "modelMatrix");
+	GLint viewLoc = glGetUniformLocation(shader_program, "viewMatrix");
+	GLint projLoc = glGetUniformLocation(shader_program, "projectionMatrix");
+
+	// Send the matrices with `GL_TRUE` to transpose if necessary
+	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, glm::value_ptr(modelMatrix));
+	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+	glUniformMatrix4fv(projLoc, 1, GL_TRUE, glm::value_ptr(projectionMatrix));
+
+
+	// Draw the cube using the indices in the EBO
+	glBindVertexArray(vao);
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
+	//-----------------------------------------------------------------------//
+
+	glfwSwapBuffers(window);
+}
+
+// close GL context and any other GLFW resources
+glfwTerminate();
+exit(EXIT_SUCCESS);
+}
+
 
 
 

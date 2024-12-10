@@ -1,8 +1,8 @@
-#version 450
+#version 430
 
 // Input from the vertex shader (vertex positions)
 layout(location = 0) in vec4 vp;
-layout (location = 2) in vec3 normal; // Attribute 2 (normals) NEED TO CHANGE IT TO 1 FOR 2-3
+layout (location = 1) in vec3 normal; // Attribute 2 (normals) NEED TO CHANGE IT TO 1 FOR 2-3
 
 // Definition of transformation matrices as uniforms
 uniform mat4 modelMatrix;

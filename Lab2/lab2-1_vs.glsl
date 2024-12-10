@@ -1,26 +1,26 @@
-// Lab 1.6 vs 
-#version 430 //450
+#version 430
 
-in vec4 vp;
-// Lab 2.1
-in vec3 normal;
+// Input from the vertex shader (vertex positions)
+layout(location = 0) in vec4 vp;
+layout (location = 2) in vec3 normal; // Attribute 2 (normals) NEED TO CHANGE IT TO 1 FOR 2-3
 
-uniform mat4 projection;
-uniform mat4 view;
-uniform mat4 model;  
+// Definition of transformation matrices as uniforms
+uniform mat4 modelMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 projectionMatrix;
 
-out vec3 frag_normal; // Output normal to fragment shader
-out vec3 frag_position; // Output position to fragment shader
+// Output variables to the fragment shader
+out vec4 fragPos;
+out vec3 fragNormal; // Output normals
 
-void main () {
-  
-  mat4 mvp = projection * view * model;
-  gl_Position = mvp * vp;
+void main() {
+    // Apply the model, view, and projection transformations
+    vec4 modelViewPos = viewMatrix * modelMatrix * vp;
+    gl_Position = projectionMatrix * modelViewPos;
 
-  // Pass the original vertex position and normal to the fragment shader   
-  frag_position = vp.xyz;
-  //frag_normal = normal;
-  frag_normal = mat3(view * model) * normal; 
+    // Pass the position in model-view space to the fragment shader
+    fragPos = modelViewPos;
 
-};
-
+    // Transform the normal from model space to world space and pass to fragment shader
+    fragNormal = mat3(transpose(inverse(modelMatrix))) * normal;
+}

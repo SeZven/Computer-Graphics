@@ -24,6 +24,9 @@
   <ItemGroup>
     <ClInclude Include="..\Lab2\tiny_obj_loader.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Lab2\lab2-4_fs.glsl" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D1203DD2-1C33-4E6D-8854-9ABB41F105A9}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>

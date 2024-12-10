@@ -1,50 +1,54 @@
-#version 410
+//Question 2-2
 
+#version 430
+
+// Output color of the fragment shader
 out vec3 frag_colour;
 
-in vec3 frag_normal;
-in vec3 frag_position;
+// Inputs from the vertex shader
+in vec3 fragNormal; // Interpolated normal
+in vec4 fragPos;    // Homogeneous position
 
-uniform int light_count;
-uniform vec3 light_position[4]; // can have up to 4 light sources
-uniform vec3 light_colour[4];
+// Uniforms for lights
+uniform int light_count;         // Number of lights
+uniform vec3 lightPosition[4];   // Array of light positions
+uniform vec3 lightColor[4];      // Array of light colors
 
+// Lambertian BRDF function (defined separately)
+vec3 lambertian_brdf(vec3 in_direction, vec3 out_direction, vec3 normal) {
 
-vec3 lambertian_brdf( vec3 in_direction, vec3 out_direction, vec3 normal )
-{
-  // YOUR CODE GOES HERE
-  // Implement a Lambertian BRDF 
-  // For a Lambertian surface, BRDF = albedo / PI
-  vec3 albedo = vec3(1, 1, 1);
-  return albedo / 3.14159265359; 
+    // Diffuse color (albedo)
+    vec3 albedo = vec3(1.0, 1.0, 0.0); // Default: yellow
+
+    // Calculate the cosine of the angle between the normal and light direction
+    float cos_theta = max(dot(normal, in_direction), 0.0);
+
+    // Lambertian contribution (rho_d / pi)
+    vec3 diffuse_reflectance = albedo / 3.14159;
+
+    // Final contribution
+    return diffuse_reflectance * cos_theta;
 }
 
-void main () {
+void main() {
+    // Initialize the final color
+    frag_colour = vec3(0.0);
 
-  frag_colour = vec3(0);
-  for (int l = 0; l < light_count; ++l )
-  {
-    // YOUR CODE GOES HERE
-    // Implement Equation 1 from the lab instructions: (incoming light colour) * (brdf) * (cosine)
-    // AI used
-    // Compute direction to light and normalize
-    vec3 light_dir = normalize(light_position[l] - frag_position);
-    
-    // Normalize the surface normal
-    vec3 normal = normalize(frag_normal);
-    
-    // Compute the cosine factor (N · L)
-    float NdotL = max(dot(normal, light_dir), 0.0);
+    // Normalize the normal and convert position to 3D space
+    vec3 N = normalize(fragNormal);   // Normalized normal
+    vec3 fragPos3D = fragPos.xyz;     // Homogeneous conversion to vec3
 
-    // If the light is not contributing (NdotL <= 0), skip it
-    if (NdotL > 0.0) {
-      // Evaluate the Lambertian BRDF
-      vec3 brdf = lambertian_brdf(light_dir, vec3(0), normal);
+    // Loop through each light source
+    for (int l = 0; l < light_count; l++) {
+        // Calculate the light direction
+        vec3 light_direction = normalize(lightPosition[l] - fragPos3D);
 
-      // Accumulate the contribution from this light source
-      // Equation: incoming light colour * BRDF * cosine factor
-      vec3 increasedLightColor =  light_colour[l] * 3.0; // Question 1
-      frag_colour += increasedLightColor * brdf * NdotL;
+        // Call the Lambertian BRDF function
+        vec3 brdf = lambertian_brdf(light_direction, -light_direction, N);
+
+        // Add this light's contribution to the final color
+        frag_colour += lightColor[l] * brdf * 3;
     }
-  }
+
 }
+
