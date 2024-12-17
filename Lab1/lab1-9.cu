@@ -1,3 +1,4 @@
+# help of AI
 #include <stdlib.h>
 #include <stdio.h>
 
