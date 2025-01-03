@@ -33,14 +33,14 @@ uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
 
-out vec4 fragPosition;  // Position passed to fragment shader
+out vec3 fragPosition;  // Position passed to fragment shader
 out vec3 fragNormal;    // Normal passed to fragment shader
 out vec3 fragAxis;      // Axis vector passed to fragment shader
 
 void main() {
     // Apply the model, view, and projection transformations
     vec4 modelViewPos = viewMatrix * modelMatrix * vp;
-    fragPosition = modelViewPos;
+    fragPosition = modelViewPos.xyz;
 
     // Transform normal to world space
     fragNormal = mat3(transpose(inverse(modelMatrix))) * inNormal;
