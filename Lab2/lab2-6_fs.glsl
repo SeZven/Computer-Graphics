@@ -1,51 +1,43 @@
 #version 430
-
-in vec3 fragPosition;   // From vertex shader
-in vec3 fragNormal;     // From vertex shader
-in vec3 fragAxis;       // From vertex shader
-
-out vec4 fragColor;     // Output color
-
-uniform vec3 lightDir;   // Directional light direction
-uniform vec3 viewDir;    // Camera/view direction
-uniform vec3 baseColor;  // Base color of the surface
-uniform float roughnessT; // Roughness along tangent
-uniform float roughnessB; // Roughness along bitangent
-
+in vec3 fragNormal;
+in vec3 fragPosition;
+uniform vec3 lightDir;
+uniform vec3 baseColor;
+uniform float roughness;
+uniform float metallic;
+uniform int shaderModel;
+out vec4 fragColor;
+float GGX(vec3 N, vec3 H, float alpha) {
+    float alpha2 = alpha * alpha;
+    float NdotH = max(dot(N, H), 0.0);
+    float denom = (NdotH * alpha2 - NdotH) * NdotH + 1.0;
+    return alpha2 / (3.14159 * denom * denom);
+}
+vec3 CookTorrance(vec3 N, vec3 L, vec3 V, vec3 F0, float roughness) {
+    vec3 H = normalize(L + V);
+    float NDF = GGX(N, H, roughness);
+    float G = min(1.0, min(2.0 * dot(N, H) * dot(N, V) / dot(V, H),
+                           2.0 * dot(N, H) * dot(N, L) / dot(V, H)));
+    float F = pow(1.0 - dot(H, V), 5.0);
+    vec3 fresnel = F0 + (1.0 - F0) * F;
+    return fresnel * NDF * G / (4.0 * max(dot(N, L), 0.0) * max(dot(N, V), 0.0));
+}
 void main() {
-    // Ensure the normal vector is normalized
-    vec3 normal = normalize(fragNormal);
-
-    // Compute the bitangent vector (perpendicular to normal and axis)
-    vec3 bitangent = normalize(cross(normal, fragAxis));
-
-    // Compute the tangent vector (perpendicular to bitangent and normal)
-    vec3 tangent = normalize(cross(bitangent, normal));
-
-    // Compute the half-vector
-    vec3 H = normalize(lightDir + viewDir);
-
-    // Transform half-vector into tangent space
-    float Ht = dot(H, tangent);
-    float Hb = dot(H, bitangent);
-    float Hn = dot(H, normal);
-
-    // Compute anisotropic NDF
-    float alphaT = roughnessT * roughnessT;
-    float alphaB = roughnessB * roughnessB;
-    float D = exp(-(Ht * Ht / (alphaT * alphaT) + Hb * Hb / (alphaB * alphaB)) / (Hn * Hn)) /
-              (3.14159 * alphaT * alphaB * pow(Hn, 4.0));
-
-    // Compute Fresnel term (approximation)
-    float F = pow(1.0 - dot(H, viewDir), 5.0);
-
-    // Compute geometry term (simplified)
-    float G = min(1.0, min(2.0 * dot(normal, H) * dot(normal, viewDir) / dot(viewDir, H),
-                           2.0 * dot(normal, H) * dot(normal, lightDir) / dot(viewDir, H)));
-
-    // Compute BRDF
-    vec3 specular = vec3(D * F * G / (4.0 * dot(normal, lightDir) * dot(normal, viewDir)));
-    vec3 diffuse = (1.0 - F) * baseColor;
-
-    fragColor = vec4(diffuse + specular, 1.0);
+    vec3 N = normalize(fragNormal);
+    vec3 L = normalize(lightDir);
+    vec3 V = normalize(-fragPosition);
+    vec3 color;
+    if (shaderModel == 0) {
+        float NdotL = max(dot(N, L), 0.0);
+        color = baseColor * NdotL;
+    } else if (shaderModel == 1) {
+        vec3 H = normalize(L + V);
+        float NdotH = max(dot(N, H), 0.0);
+        float specular = pow(NdotH, 200.0);
+        color = baseColor * max(dot(N, L), 0.0) + vec3(specular);
+    } else if (shaderModel == 2) {
+        vec3 F0 = mix(vec3(0.04), baseColor, metallic);
+        color = CookTorrance(N, L, V, F0, roughness);
+    }
+    fragColor = vec4(color, 1.0);
 }
