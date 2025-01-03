@@ -25,11 +25,11 @@
 
 // Read the code for the shader programs from file
 // Lab 2-4
-//std::string vertex_shader_str = readFile("../lab2-2_vs.glsl");
-//std::string fragment_shader_str = readFile("../lab2-4_fs.glsl");
+std::string vertex_shader_str = readFile("../lab2-2_vs.glsl");
+std::string fragment_shader_str = readFile("../lab2-4_fs.glsl");
 // Lab 2-5
-std::string vertex_shader_str = readFile("../lab2-5_vs.glsl");
-std::string fragment_shader_str = readFile("../lab2-5_fs.glsl");
+//std::string vertex_shader_str = readFile("../lab2-5_vs.glsl");
+//std::string fragment_shader_str = readFile("../lab2-5_fs.glsl");
 GLuint shader_program;
 
 float x_rotation = 0;
@@ -186,7 +186,6 @@ int plotting() {
 	return 0;
 }
 
-/*
 int main(int argc, char** argv)
 {
 	glfwSetErrorCallback(error_callback);
@@ -385,194 +384,3 @@ int main(int argc, char** argv)
 	return 0;
 }
 
-*/
-
-int main(int argc, char** argv)
-{
-	glfwSetErrorCallback(error_callback);
-	if (!glfwInit())
-		exit(EXIT_FAILURE);
-
-	int w_width = 800;
-	int w_height = 600;
-	GLFWwindow* window = glfwCreateWindow(w_width, w_height, "Hello Cube", NULL, NULL);
-	glfwSetKeyCallback(window, key_callback);
-	glfwSetScrollCallback(window, scroll_callback);
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
-	if (!window) {
-		glfwTerminate();
-		exit(EXIT_FAILURE);
-	}
-	glfwMakeContextCurrent(window);
-
-	glewExperimental = GL_TRUE;
-	glewInit();
-
-	loadShaders(vertex_shader_str, fragment_shader_str);
-
-	glEnable(GL_DEPTH_TEST); // Enable depth-testing
-	glDepthFunc(GL_LESS); // Depth-testing interprets a smaller value as "closer"
-	plotting();
-
-	std::string inputfile = "../../common/data/bunny.obj";
-	std::vector<tinyobj::shape_t> shapes;
-	std::vector<tinyobj::material_t> materials;
-
-	std::string err;
-	int flags = 0; // See load_flags_t enum for more information.
-
-	// Load the object
-	bool ret = tinyobj::LoadObj(shapes, materials, err, inputfile.c_str(), 0, flags);
-
-	// Check for errors
-	if (!err.empty()) { // `err` may contain a warning message.
-		std::cerr << err << std::endl;
-	}
-
-	if (!ret) {
-		exit(1);
-	}
-	else
-	{
-		std::cout << "Loaded " << inputfile
-			<< " ("
-			<< shapes.size() << " shapes"
-			<< ")"
-			<< "\n";
-		if (shapes.size() > 0)
-		{
-			std::cout << shapes[0].mesh.positions.size() << " points "
-				<< "(" << shapes[0].mesh.positions.size() * sizeof(float) << " bytes), "
-				<< shapes[0].mesh.indices.size() << " indices "
-				<< "(" << shapes[0].mesh.indices.size() * sizeof(unsigned int) << " bytes), "
-				<< shapes[0].mesh.normals.size() << " normals.\n"
-				;
-		}
-	}
-
-	// Populate your VBO with shapes[0].mesh.positions and shapes[0].mesh.normals
-	GLuint vao;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-
-	// Creation and filling of the VBO
-	GLuint vbo_positions;
-	glGenBuffers(1, &vbo_positions);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_positions);
-	glBufferData(GL_ARRAY_BUFFER,
-		shapes[0].mesh.positions.size() * sizeof(float), // Size in bytes
-		shapes[0].mesh.positions.data(),                 // Raw data
-		GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	glEnableVertexAttribArray(0);
-
-	GLuint vbo_normals;
-	glGenBuffers(1, &vbo_normals);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_normals);
-	glBufferData(GL_ARRAY_BUFFER,
-		shapes[0].mesh.normals.size() * sizeof(float), // Size in bytes
-		shapes[0].mesh.normals.data(),                 // Raw data
-		GL_STATIC_DRAW);
-
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	glEnableVertexAttribArray(1);
-
-	// Populate your EBO with shapes[0].mesh.indices
-	GLuint ebo;
-	glGenBuffers(1, &ebo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-		shapes[0].mesh.indices.size() * sizeof(unsigned int), // Size in bytes
-		shapes[0].mesh.indices.data(),                 // Raw data
-		GL_STATIC_DRAW);
-
-	while (!glfwWindowShouldClose(window))
-	{
-		// Update other events like keyboard/mouse input.
-		glfwPollEvents();
-		// Clear the drawing surface before drawing something new.
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		glfwGetFramebufferSize(window, &w_width, &w_height);
-
-		//-----------------------------------------------------------------------//
-		// YOUR CODE GOES HERE
-		//
-		// Replace your hand-crafted matrices from lab1-5.cpp with ones
-		// created by glm.
-		glm::mat4 modelMatrix = glm::mat4(1.0f); // Identity matrix
-		modelMatrix = glm::scale(modelMatrix, glm::vec3(10.0f));
-		glm::mat4 viewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -0.5f));
-		glm::mat4 rotate_x = glm::rotate(glm::mat4(1.0f), x_rotation, glm::vec3(1.0f, 0.0f, 0.0f));
-		glm::mat4 rotate_y = glm::rotate(glm::mat4(1.0f), y_rotation, glm::vec3(0.0f, 1.0f, 0.0f));
-
-		//
-		// Use glm::perspective to create a projection matrix
-		const float fov = 0.7854f;           // 45 degrees in radians
-		const float aspect = 1.0f;
-		const float near = 1.0f;             // Near and far are fundamental 
-		const float far = 10.0f;
-		glm::mat4 projectionMatrix = glm::perspective(0.7854, 1.0, 1.0, 10.0); //fov, aspect (width and height ratio of the window), near, far
-
-		//
-		// Use glm::translate and glm::rotate to create the
-		// model and view matrices.
-		modelMatrix = rotate_y * rotate_x;
-
-		// Light parameters
-		int light_count = 1;
-		glm::vec3 lightPosition = glm::vec3(1.0f, 3.0f, 2.0f); // Light position 
-		glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f); // White color
-		glm::vec3 lightDir = glm::normalize(glm::vec3(1.0f, 3.0f, 2.0f)); // Light direction
-		glm::vec3 viewDir = glm::normalize(glm::vec3(0.0f, 0.0f, -1.0f)); // View direction
-		glm::vec3 baseColor = glm::vec3(0.8f, 0.8f, 0.8f); // Base color
-		float roughnessT = 0.15f; // Roughness along tangent
-		float roughnessB = 0.7f; // Roughness along bitangent
-
-		// Call glDrawElements as before
-		// After loading and linking the shader program
-		GLint modelLoc = glGetUniformLocation(shader_program, "modelMatrix");
-		GLint viewLoc = glGetUniformLocation(shader_program, "viewMatrix");
-		GLint projLoc = glGetUniformLocation(shader_program, "projectionMatrix");
-
-		// Light parameters 
-		GLuint lightDirLocation = glGetUniformLocation(shader_program, "lightDir");
-		GLuint viewDirLocation = glGetUniformLocation(shader_program, "viewDir");
-		GLuint baseColorLocation = glGetUniformLocation(shader_program, "baseColor");
-		GLuint roughnessTLocation = glGetUniformLocation(shader_program, "roughnessT");
-		GLuint roughnessBLocation = glGetUniformLocation(shader_program, "roughnessB");
-
-		// Send the matrices with `GL_TRUE` to transpose if necessary
-		glUniformMatrix4fv(modelLoc, 1, GL_TRUE, glm::value_ptr(modelMatrix));
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
-		glUniformMatrix4fv(projLoc, 1, GL_TRUE, glm::value_ptr(projectionMatrix));
-
-		// Light parameters 
-		glUniform3fv(lightDirLocation, 1, glm::value_ptr(lightDir)); // Send the light direction
-		glUniform3fv(viewDirLocation, 1, glm::value_ptr(viewDir)); // Send the view direction
-		glUniform3fv(baseColorLocation, 1, glm::value_ptr(baseColor)); // Send the base color
-		glUniform1f(roughnessTLocation, roughnessT); // Send the roughness along tangent
-		glUniform1f(roughnessBLocation, roughnessB); // Send the roughness along bitangent
-
-		// Draw the cube using the indices in the EBO
-		glBindVertexArray(vao);
-		glDrawElements(GL_TRIANGLES, shapes[0].mesh.indices.size(), GL_UNSIGNED_INT, (void*)0);
-		glBindVertexArray(0);
-
-		//-----------------------------------------------------------------------//
-
-		glfwSwapBuffers(window);
-	}
-	glDeleteBuffers(1, &vbo_positions);
-	glDeleteBuffers(1, &vbo_normals);
-	glDeleteBuffers(1, &ebo);
-	glDeleteVertexArrays(1, &vao);
-
-	// Close GL context and any other GLFW resources
-	glfwTerminate();
-	exit(EXIT_SUCCESS);
-
-	return 0;
-}
