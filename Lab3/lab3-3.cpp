@@ -320,6 +320,10 @@ int main(int argc, char const* argv[])
 	float normals[sizeof(points) / sizeof(points[0])];
 	//Normals array creation
 
+	// Lab 3-3 (tangents and bitangents)
+	std::vector<glm::vec3> tangents(num_verts);
+	std::vector<glm::vec3> bitangents(num_verts);
+
 // Initialisation
 	for (size_t i = 0; i < sizeof(normals) / sizeof(normals[0]); i++) {
 		normals[i] = 0.0f;
@@ -337,10 +341,23 @@ int main(int argc, char const* argv[])
 		glm::vec3 p1(points[i1 * 3], points[i1 * 3 + 1], points[i1 * 3 + 2]);
 		glm::vec3 p2(points[i2 * 3], points[i2 * 3 + 1], points[i2 * 3 + 2]);
 
+		// Lab 3-3 uv coordinates
+		glm::vec2 uv0(uv_coords[i0 * 2], uv_coords[i0 * 2 + 1]);
+		glm::vec2 uv1(uv_coords[i1 * 2], uv_coords[i1 * 2 + 1]);
+		glm::vec2 uv2(uv_coords[i2 * 2], uv_coords[i2 * 2 + 1]);
+
 
 		// Calculating the vectors
 		glm::vec3 v1 = p1 - p0;
 		glm::vec3 v2 = p2 - p0;
+
+		// Lab 3-3
+		glm::vec2 deltaUV1 = uv1 - uv0;
+		glm::vec2 deltaUV2 = uv2 - uv0;
+		float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
+		glm::vec3 tangent = (v1 * deltaUV2.y - v2 * deltaUV1.y) * r;
+		glm::vec3 bitangent = (v2 * deltaUV1.x - v1 * deltaUV2.x) * r;
+
 
 		// Calculating the normal of the triangle
 		glm::vec3 normal = glm::normalize(glm::cross(v1, v2));  // Cross product v1.v2 or (p1-p0).(p2-p0)
@@ -358,6 +375,15 @@ int main(int argc, char const* argv[])
 		normals[i2 * 3 + 1] += normal.y;
 		normals[i2 * 3 + 2] += normal.z;
 
+		// Lab 3-3
+		tangents[i0] += tangent;
+		tangents[i1] += tangent;
+		tangents[i2] += tangent;
+
+		bitangents[i0] += bitangent;
+		bitangents[i1] += bitangent;
+		bitangents[i2] += bitangent;
+
 	}
 
 	// Normalizing the normals for each vertex
@@ -370,6 +396,11 @@ int main(int argc, char const* argv[])
 		normals[i + 2] = normal.z;
 	}
 
+	// Lab 3-3
+	for (size_t i = 0; i < num_verts; ++i) {
+		tangents[i] = glm::normalize(tangents[i]);
+		bitangents[i] = glm::normalize(bitangents[i]);
+	}
 
 
 	// Creating and binding the VAO (position, normals, texture coordinates)
@@ -442,6 +473,24 @@ int main(int argc, char const* argv[])
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid*)0);
 
+	// Lab 3-3
+	// Create and upload Tangent buffer
+	GLuint vbo_tangents;
+	glGenBuffers(1, &vbo_tangents);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_tangents);
+	glBufferData(GL_ARRAY_BUFFER, tangents.size() * sizeof(glm::vec3), tangents.data(), GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+
+	// Create and upload Bitangent buffer
+	GLuint vbo_bitangents;
+	glGenBuffers(1, &vbo_bitangents);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_bitangents);
+	glBufferData(GL_ARRAY_BUFFER, bitangents.size() * sizeof(glm::vec3), bitangents.data(), GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
 
 	/*
 	//3-2 to 3-3 (replaced texture_handle with normal_map_handle)
@@ -569,6 +618,9 @@ int main(int argc, char const* argv[])
 	glDeleteBuffers(1, &vbo_normals);
 	glDeleteBuffers(1, &ebo);
 	glDeleteVertexArrays(1, &vao);
+	// Lab 3-3
+	glDeleteBuffers(1, &vbo_tangents);
+	glDeleteBuffers(1, &vbo_bitangents);
 
 	// close GL context and any other GLFW resources
 	glfwTerminate();
