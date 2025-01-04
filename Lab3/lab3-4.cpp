@@ -14,7 +14,7 @@
 std::string vertex_shader_str = readFile("../lab3-4_vs.glsl");
 std::string fragment_shader_str = readFile("../lab3-4_fs.glsl");
 GLuint shader_program;
-GLuint shadow_shader_program;
+//GLuint shadow_shader_program;
 
 float x_rotation = 0;
 float y_rotation = 0;
@@ -66,7 +66,7 @@ void loadShaders(std::string vertex_shader_str, std::string fragment_shader_str)
 	glDeleteShader(fs);
 	glUseProgram(shader_program);
 }
-
+/*
 void loadShadowShaders(std::string vertex_shader_str, std::string fragment_shader_str)
 {
 	const char* vertex_shader_src = vertex_shader_str.c_str();
@@ -90,6 +90,7 @@ void loadShadowShaders(std::string vertex_shader_str, std::string fragment_shade
 	glDeleteShader(fs);
 	glUseProgram(shadow_shader_program);
 }
+*/
 
 static void error_callback(int error, const char* description)
 {
@@ -138,7 +139,7 @@ int main(int argc, char const* argv[])
 	glewInit();
 
 	loadShaders(vertex_shader_str, fragment_shader_str);
-	loadShadowShaders(vertex_shader_str, "void main() {}");
+	//loadShadowShaders(vertex_shader_str, "void main() {}");
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -591,8 +592,10 @@ int main(int argc, char const* argv[])
 		lightView = glm::lookAt(glm::vec3(-2.0f, 4.0f, -1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		lightSpaceMatrix = lightProjection * lightView;
 
-		glUseProgram(shadow_shader_program);
-		glUniformMatrix4fv(glGetUniformLocation(shadow_shader_program, "lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
+		//glUseProgram(shadow_shader_program);
+		glUseProgram(shader_program);
+		//glUniformMatrix4fv(glGetUniformLocation(shadow_shader_program, "lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
+		glUniformMatrix4fv(glGetUniformLocation(shader_program, "lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
 
 		// Render scene from light's point of view
 		// Geometry rendering code
