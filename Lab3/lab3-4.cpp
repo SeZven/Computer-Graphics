@@ -596,7 +596,9 @@ int main(int argc, char const* argv[])
 		glUseProgram(shader_program);
 		//glUniformMatrix4fv(glGetUniformLocation(shadow_shader_program, "lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
 		glUniformMatrix4fv(glGetUniformLocation(shader_program, "lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
+		glUniformMatrix4fv(glGetUniformLocation(shader_program, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
 
+        
 		// Render scene from light's point of view
 		// Geometry rendering code
 		// Render the icosahedron
