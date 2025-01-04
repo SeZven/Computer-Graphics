@@ -143,7 +143,417 @@ int main(int argc, char const* argv[])
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
-	// Geometry setup code here (skipped)
+	// Geometry setup code
+	float t = (1.0f + sqrtf(5.0f)) * 0.25f;
+	int num_faces = 20;
+	int num_verts = 60;
+
+	float points[] = {
+		// An icosahedron without shared vertices has 20*3 vertices
+		-0.5,  t,  0,
+		-0.5,  t,  0,
+		-0.5,  t,  0,
+		-0.5,  t,  0,
+		-0.5,  t,  0,
+
+		0.5,  t,  0,
+		0.5,  t,  0,
+		0.5,  t,  0,
+		0.5,  t,  0,
+		0.5,  t,  0,
+
+		-0.5, -t,  0,
+		-0.5, -t,  0,
+		-0.5, -t,  0,
+		-0.5, -t,  0,
+		-0.5, -t,  0,
+
+		0.5, -t,  0,
+		0.5, -t,  0,
+		0.5, -t,  0,
+		0.5, -t,  0,
+		0.5, -t,  0,
+
+		0, -0.5,  t,
+		0, -0.5,  t,
+		0, -0.5,  t,
+		0, -0.5,  t,
+		0, -0.5,  t,
+
+		0,  0.5,  t,
+		0,  0.5,  t,
+		0,  0.5,  t,
+		0,  0.5,  t,
+		0,  0.5,  t,
+
+		0, -0.5, -t,
+		0, -0.5, -t,
+		0, -0.5, -t,
+		0, -0.5, -t,
+		0, -0.5, -t,
+
+		0,  0.5, -t,
+		0,  0.5, -t,
+		0,  0.5, -t,
+		0,  0.5, -t,
+		0,  0.5, -t,
+
+		t,  0, -0.5,
+		t,  0, -0.5,
+		t,  0, -0.5,
+		t,  0, -0.5,
+		t,  0, -0.5,
+
+		t,  0,  0.5,
+		t,  0,  0.5,
+		t,  0,  0.5,
+		t,  0,  0.5,
+		t,  0,  0.5,
+
+		-t,  0, -0.5,
+		-t,  0, -0.5,
+		-t,  0, -0.5,
+		-t,  0, -0.5,
+		-t,  0, -0.5,
+
+		-t,  0,  0.5,
+		-t,  0,  0.5,
+		-t,  0,  0.5,
+		-t,  0,  0.5,
+		-t,  0,  0.5
+	};
+
+	float uv_coords[] =
+	{
+	  0.072405, 0.144686,
+	  0.27133,  0.10033,
+	  0.481007, 0.129901,
+	  0.681948, 0.115116,
+	  0.928587, 0.107723,
+	  0.29888,  0.70651,
+	  0.449421, 0.736084,
+	  0.108695, 0.129901,
+	  0.847270, 0.699121,
+	  0.868776, 0.728691,
+	  0.576437, 0.721299,
+	  0.319044, 0.750869,
+	  0.548883, 0.736084,
+	  0.388265, 0.115116,
+	  0.397674, 0.713906,
+	  0.149690, 0.122508,
+	  0.347942, 0.115116,
+	  0.583157, 0.107723,
+	  0.780738, 0.100331,
+	  0.229663, 0.107723,
+	  0.33436,  0.68882,
+	  0.181276, 0.721299,
+	  0.379528, 0.721299,
+	  0.190684, 0.122508,
+	  0.358023, 0.736084,
+	  0.103319, 0.713906,
+	  0.24512,  0.70651,
+	  0.083157, 0.699121,
+	  0.31006,  0.10251,
+	  0.222942, 0.721299,
+	  0.772001, 0.728691,
+	  0.618776, 0.721299,
+	  0.745120, 0.721299,
+	  0.433292, 0.115116,
+	  0.598614, 0.713906,
+	  0.520657, 0.721299,
+	  0.650362, 0.736084,
+	  0.700765, 0.728691,
+	  0.878184, 0.107723,
+	  0.671867, 0.743476,
+	  0.914475, 0.743476,
+	  0.819717, 0.736084,
+	  0.201437, 0.721299,
+	  0.633561, 0.122508,
+	  0.796195, 0.743476,
+	  0.140953, 0.728691,
+	  0.122136, 0.706514,
+	  0.262593, 0.721299,
+	  0.157754, 0.728691,
+	  0.825765, 0.115116,
+	  0.723614, 0.728691,
+	  0.897001, 0.721299,
+	  0.499152, 0.736084,
+	  0.731007, 0.115116,
+	  0.469582, 0.721299,
+	  0.045523, 0.691729,
+	  0.967566, 0.721299,
+	  0.28341,  0.67157,
+	  0.532754, 0.122508,
+	  0.418507, 0.706514,
+	};
+
+	int num_indices = num_faces * 3;
+	unsigned short faces[] = {
+		// ... and 20 triangular faces, 
+		// defined by the following vertex indices:
+		0,  55, 25,
+		1,  26,  5,
+		2,  6, 35,
+		3,  36, 50,
+		4,  51, 56,
+		7,  27, 45,
+		28, 57, 20,
+		58, 52, 10,
+		53, 37, 30,
+		38,  8, 40,
+		15, 46, 21,
+		16, 22, 11,
+		17, 12, 31,
+		18, 32, 41,
+		19, 42, 47,
+		23, 48, 29,
+		13, 24, 59,
+		33, 14, 54,
+		43, 34, 39,
+		49, 44, 9
+	};
+
+
+
+	float normals[sizeof(points) / sizeof(points[0])];
+	//Normals array creation
+
+	// Lab 3-3 (tangents and bitangents)
+	std::vector<glm::vec3> tangents(num_verts);
+	std::vector<glm::vec3> bitangents(num_verts);
+
+	// Initialisation
+	for (size_t i = 0; i < sizeof(normals) / sizeof(normals[0]); i++) {
+		normals[i] = 0.0f;
+	}
+
+	// Normals calculus for each triangle
+	for (size_t i = 0; i < sizeof(faces) / sizeof(faces[0]); i += 3) {
+		// Vertex indices
+		unsigned short i0 = faces[i];
+		unsigned short i1 = faces[i + 1];
+		unsigned short i2 = faces[i + 2];
+
+		// Extracting the coordinates of the vertices (x, y, z)
+		glm::vec3 p0(points[i0 * 3], points[i0 * 3 + 1], points[i0 * 3 + 2]);
+		glm::vec3 p1(points[i1 * 3], points[i1 * 3 + 1], points[i1 * 3 + 2]);
+		glm::vec3 p2(points[i2 * 3], points[i2 * 3 + 1], points[i2 * 3 + 2]);
+
+		// Lab 3-3 uv coordinates
+		glm::vec2 uv0(uv_coords[i0 * 2], uv_coords[i0 * 2 + 1]);
+		glm::vec2 uv1(uv_coords[i1 * 2], uv_coords[i1 * 2 + 1]);
+		glm::vec2 uv2(uv_coords[i2 * 2], uv_coords[i2 * 2 + 1]);
+
+
+		// Calculating the vectors
+		glm::vec3 v1 = p1 - p0;
+		glm::vec3 v2 = p2 - p0;
+
+		// Lab 3-3
+		glm::vec2 deltaUV1 = uv1 - uv0;
+		glm::vec2 deltaUV2 = uv2 - uv0;
+		float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
+		glm::vec3 tangent = (v1 * deltaUV2.y - v2 * deltaUV1.y) * r;
+		glm::vec3 bitangent = (v2 * deltaUV1.x - v1 * deltaUV2.x) * r;
+
+
+		// Calculating the normal of the triangle
+		glm::vec3 normal = glm::normalize(glm::cross(v1, v2));  // Cross product v1.v2 or (p1-p0).(p2-p0)
+
+		// Adding the calculated normal to each vertex of the triangle
+		normals[i0 * 3] += normal.x;
+		normals[i0 * 3 + 1] += normal.y;
+		normals[i0 * 3 + 2] += normal.z;
+
+		normals[i1 * 3] += normal.x;
+		normals[i1 * 3 + 1] += normal.y;
+		normals[i1 * 3 + 2] += normal.z;
+
+		normals[i2 * 3] += normal.x;
+		normals[i2 * 3 + 1] += normal.y;
+		normals[i2 * 3 + 2] += normal.z;
+
+		// Lab 3-3
+		tangents[i0] += tangent;
+		tangents[i1] += tangent;
+		tangents[i2] += tangent;
+
+		bitangents[i0] += bitangent;
+		bitangents[i1] += bitangent;
+		bitangents[i2] += bitangent;
+
+	}
+
+	// Normalizing the normals for each vertex
+	for (size_t i = 0; i < sizeof(points) / sizeof(points[0]); i += 3) {
+		glm::vec3 normal(normals[i], normals[i + 1], normals[i + 2]);
+		normal = glm::normalize(normal);
+
+		normals[i] = normal.x;
+		normals[i + 1] = normal.y;
+		normals[i + 2] = normal.z;
+	}
+
+	// Lab 3-3
+	for (size_t i = 0; i < num_verts; ++i) {
+		tangents[i] = glm::normalize(tangents[i]);
+		bitangents[i] = glm::normalize(bitangents[i]);
+	}
+
+
+	// Creating and binding the VAO (position, normals, texture coordinates)
+	GLuint vao;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	// Creating and filling the VBO (vertex coordinates)
+	GLuint vbo;
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
+
+	// Attribute for the position
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+	// Index 0: 3 components for the position (x, y, z)
+
+	// Creating and filling the VBO (normals)
+	GLuint vbo_normals;
+	glGenBuffers(1, &vbo_normals);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_normals);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(normals), normals, GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(1); // Utilisez 1 pour les normales (à adapter selon le shader)
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+
+
+
+	// Creating and filling the EBO (defines the vertex indices that form the triangles of the cube)
+	GLuint ebo;
+	glGenBuffers(1, &ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(faces), faces, GL_STATIC_DRAW);
+	//-------------------------------------------------------------------------//
+
+	// Lab 3-3 (texture to normal_map_handle)
+	GLuint normal_map_handle; // normal map handle
+	glGenTextures(1, &normal_map_handle); // from 0 to 1
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, normal_map_handle);
+
+	glUseProgram(shader_program);
+	glUniform1i(glGetUniformLocation(shader_program, "normal_sampler"), 1);
+
+	unsigned char* image_data;
+	unsigned image_w, image_h;
+	unsigned err_code = lodepng_decode32_file(&image_data, &image_w, &image_h, "../../common/data/numberline_hires.png");
+	if (err_code) {
+		std::cerr << "Error loading texture: " << lodepng_error_text(err_code) << std::endl;
+		return -1;
+	}
+	std::cout << "Read " << image_h << " x " << image_w << " image\n";
+
+	// Upload the texture to the GPU
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_w, image_h, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
+
+	// Set texture parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+
+	// Create and upload UV buffer
+	GLuint vbo_uv;
+	glGenBuffers(1, &vbo_uv);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_uv);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(uv_coords), uv_coords, GL_STATIC_DRAW);
+
+	// Enable and set the UV attribute pointer (location 2)
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid*)0);
+
+	// Lab 3-3
+	// Create and upload Tangent buffer
+	GLuint vbo_tangents;
+	glGenBuffers(1, &vbo_tangents);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_tangents);
+	glBufferData(GL_ARRAY_BUFFER, tangents.size() * sizeof(glm::vec3), tangents.data(), GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+
+	// Create and upload Bitangent buffer
+	GLuint vbo_bitangents;
+	glGenBuffers(1, &vbo_bitangents);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_bitangents);
+	glBufferData(GL_ARRAY_BUFFER, bitangents.size() * sizeof(glm::vec3), bitangents.data(), GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+
+	//-------------------------------------------------------------------------//
+	// Room geometry (cube with inward-facing normals)
+	float room_vertices[] = {
+		// positions          // normals
+		-1.0f, -1.0f, -1.0f,  0.0f,  0.0f,  1.0f,
+		 1.0f, -1.0f, -1.0f,  0.0f,  0.0f,  1.0f,
+		 1.0f,  1.0f, -1.0f,  0.0f,  0.0f,  1.0f,
+		 1.0f,  1.0f, -1.0f,  0.0f,  0.0f,  1.0f,
+		-1.0f,  1.0f, -1.0f,  0.0f,  0.0f,  1.0f,
+		-1.0f, -1.0f, -1.0f,  0.0f,  0.0f,  1.0f,
+
+		-1.0f, -1.0f,  1.0f,  0.0f,  0.0f, -1.0f,
+		 1.0f, -1.0f,  1.0f,  0.0f,  0.0f, -1.0f,
+		 1.0f,  1.0f,  1.0f,  0.0f,  0.0f, -1.0f,
+		 1.0f,  1.0f,  1.0f,  0.0f,  0.0f, -1.0f,
+		-1.0f,  1.0f,  1.0f,  0.0f,  0.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,  0.0f,  0.0f, -1.0f,
+
+		-1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f,
+		-1.0f,  1.0f, -1.0f, -1.0f,  0.0f,  0.0f,
+		-1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f,
+		-1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f,
+		-1.0f, -1.0f,  1.0f, -1.0f,  0.0f,  0.0f,
+		-1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f,
+
+		 1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f,
+		 1.0f,  1.0f, -1.0f,  1.0f,  0.0f,  0.0f,
+		 1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f,
+		 1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f,
+		 1.0f, -1.0f,  1.0f,  1.0f,  0.0f,  0.0f,
+		 1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f,
+
+		-1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f,
+		 1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f,
+		 1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f,
+		 1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f,
+		-1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f,
+		-1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f,
+
+		-1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+		 1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+		 1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+		 1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+		-1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+		-1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f
+	};
+
+	GLuint vao_room, vbo_room;
+	glGenVertexArrays(1, &vao_room);
+	glGenBuffers(1, &vbo_room);
+
+	glBindVertexArray(vao_room);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_room);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(room_vertices), room_vertices, GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+
+	glBindVertexArray(0);
+
 
 	// Shadow map setup
 	unsigned int depthMapFBO;
@@ -185,7 +595,14 @@ int main(int argc, char const* argv[])
 		glUniformMatrix4fv(glGetUniformLocation(shadow_shader_program, "lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
 
 		// Render scene from light's point of view
-		// Geometry rendering code here (skipped)
+		// Geometry rendering code
+		// Render the icosahedron
+		glBindVertexArray(vao);
+		glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, 0);
+
+		// Render the room
+		glBindVertexArray(vao_room);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -211,7 +628,14 @@ int main(int argc, char const* argv[])
 		glUniform1i(glGetUniformLocation(shader_program, "shadowMap"), 1);
 
 		// Render scene
-		// Geometry rendering code here (skipped)
+		// Geometry rendering code
+		// Render the icosahedron
+		glBindVertexArray(vao);
+		glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, 0);
+
+		// Render the room
+		glBindVertexArray(vao_room);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
