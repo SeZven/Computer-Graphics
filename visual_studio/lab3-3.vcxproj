@@ -21,6 +21,10 @@
   <ItemGroup>
     <ClCompile Include="..\Lab3\lab3-3.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Lab3\lab3-3_fs.glsl" />
+    <None Include="..\Lab3\lab3-3_vs.glsl" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D33F4189-0F40-4A11-8CC7-AB7412FC3F65}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
