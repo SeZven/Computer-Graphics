@@ -388,9 +388,9 @@ void main() {
    // Compute the ray direction in camera space
 	ray.dir = normalize(
     i_focal_dist * cz +       // Contribution of the main direction
-    (gl_FragCoord.x-0.5*i_window_size.x) * cx +     // Horizontal contribution (left/right)
-    (gl_FragCoord.y-0.5*i_window_size.y) * cy       // Vertical contribution (up/down)
-	); // TODO: CHANGE IN PREVIOUS FS
+    gl_FragCoord.x * cx +     // Horizontal contribution (left/right)
+    gl_FragCoord.y * cy       // Vertical contribution (up/down)
+	);
 
 	
 	vec3 color = raycast(ray);
@@ -404,46 +404,3 @@ void main() {
 	///\todo REMOVE THIS LINE after you have the triangles set up
 	//o_fragment_color = vec4(1,0.9,0.8,1); 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

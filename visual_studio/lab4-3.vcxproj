@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Lab4\lab4-3_fs.glsl" />
+    <None Include="..\Lab4\lab4-5_fs.glsl" />
     <None Include="..\Lab4\lab4_vs.glsl" />
   </ItemGroup>
   <ItemGroup>
