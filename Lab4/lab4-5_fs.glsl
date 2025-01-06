@@ -1,4 +1,4 @@
-// Based on Lab 4.1
+// Based on Lab 4.3
 
 #version 400
 out vec4 o_fragment_color; // The final colour
