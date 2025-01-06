@@ -15,10 +15,10 @@ uniform vec3 i_right;
 uniform vec3 i_dir;
 uniform float i_focal_dist;
 
-#define NUM_SPHERES 5
-#define MAX_SAMPLES 1
-#define NUM_TRIANGLES 4 // Lab 4.3
-#define NUM_BOXES 4 // Lab 4.5
+#define NUM_SPHERES 0
+#define MAX_SAMPLES 0
+#define NUM_TRIANGLES 0 // Lab 4.3
+#define NUM_BOXES 13 // Lab 4.5
 
 struct Ray {
 	vec3 origin;
@@ -67,9 +67,9 @@ struct Box {
 };
 
 struct Scene {
-	Sphere spheres[NUM_SPHERES];
+	//Sphere spheres[NUM_SPHERES];
 	Plane ground_plane[1];
-	Triangle triangles[NUM_TRIANGLES]; // Lab 4.3
+	//Triangle triangles[NUM_TRIANGLES]; // Lab 4.3
 	Box boxes[NUM_BOXES]; // Lab 4.5
 	vec3 sun_position;
 	float sun_brightness;
@@ -82,6 +82,7 @@ void init(float sun_bright) {
 	scene.sun_brightness = 1;
 	scene.sun_position = vec3(6e3, 1e4, 1e4);
 
+	/*
 	// Initialize 5 spheres and a ground plane
 	scene.spheres[0].center = vec3(0, 0.3, 0.5);
 	scene.spheres[0].radius = 0.3;
@@ -192,6 +193,57 @@ void init(float sun_bright) {
 	scene.boxes[3].min = vec3(0.5, 0.0, -1.0);
 	scene.boxes[3].max = vec3(1.0, 0.5, -0.5);
 	scene.boxes[3].material = scene.boxes[0].material;
+	*/
+
+	// Initialize a grid of boxes (3x1x3) 
+	int index = 0;
+	for (int x = -1; x <= 1; ++x) {
+		int y = 0;
+			for (int z = -1; z <= 1; ++z) {
+				scene.boxes[index].min = vec3(x, y, z);
+				scene.boxes[index].max = vec3(x + 1.0, y + 1.0, z + 1.0);
+				scene.boxes[index].material.color_diffuse = vec3(0.8, 0.2, 0.2);
+				scene.boxes[index].material.color_glossy = vec3(1);
+				scene.boxes[index].material.roughness = 100;
+				scene.boxes[index].material.color_emission = vec3(0);
+				scene.boxes[index].material.reflection = 0.5;
+				scene.boxes[index].material.transmission = 0;
+				scene.boxes[index].material.ior = 1;
+				index++;
+			}
+	}
+	int x = -1;
+	int y = 1;
+	int z = -1;
+	scene.boxes[index].min = vec3(x, y, z);
+	scene.boxes[index].max = vec3(x + 1.0, y + 1.0, z + 1.0);
+	scene.boxes[index].material = scene.boxes[0].material;
+	index++;
+
+
+	x = 1;
+	z = 0;
+	scene.boxes[index].min = vec3(x, y, z);
+	scene.boxes[index].max = vec3(x + 1.0, y + 1.0, z + 1.0);
+	scene.boxes[index].material = scene.boxes[0].material;
+	index++;
+
+	
+	x = 0;
+	z = 0;
+	scene.boxes[index].min = vec3(x, y, z);
+	scene.boxes[index].max = vec3(x + 1.0, y + 1.0, z + 1.0);
+	scene.boxes[index].material = scene.boxes[0].material;
+	index++;
+
+	
+	x = -1;
+	z = 1;
+	scene.boxes[index].min = vec3(x, y, z);
+	scene.boxes[index].max = vec3(x + 1.0, y + 1.0, z + 1.0);
+	scene.boxes[index].material = scene.boxes[0].material;
+	index++;
+
 }
 
 // This function computes a nice-looking sky sphere, with a sun.
@@ -315,6 +367,7 @@ Intersection intersect(Ray ray) {
 	float t = 1e32; // closest hit so far along this ray
 	int id = -1;
 
+	/*
 	// Check for intersection with spheres
 	for (int i = 0; i < NUM_SPHERES; ++i) {
 		float d = intersect(ray, scene.spheres[i]);
@@ -328,6 +381,7 @@ Intersection intersect(Ray ray) {
 			I.material = scene.spheres[i].material; // Material of the sphere
 		}
 	}
+	*/
 
 	// Check for intersection with planes
 	{
@@ -355,7 +409,7 @@ Intersection intersect(Ray ray) {
 		}
 	}
 
-	// Lab 4.3 Check for intersection with triangles
+	/*
 	// Lab 4.3 Check for intersection with triangles
 for (int i = 0; i < NUM_TRIANGLES; ++i) {
     float d = intersect(ray, scene.triangles[i]);
@@ -366,6 +420,7 @@ for (int i = 0; i < NUM_TRIANGLES; ++i) {
       I.material = scene.triangles[i].material;
     }
   }
+  */
 
   // Lab 4.5 Check for intersection with boxes
   for (int i = 0; i < NUM_BOXES; ++i) {
