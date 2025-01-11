@@ -18,7 +18,7 @@
 
 // Read the code for the shader programs from file
 std::string vertex_shader_str = readFile("../lab3_vs.glsl");
-std::string fragment_shader_str = readFile("../lab3_fs.glsl");
+std::string fragment_shader_str = readFile("../lab3-2_fs.glsl");
 GLuint shader_program;
 
 float x_rotation = 0;

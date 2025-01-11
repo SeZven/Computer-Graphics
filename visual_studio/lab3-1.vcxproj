@@ -22,7 +22,7 @@
     <ClCompile Include="..\Lab3\lab3-1.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Lab3\lab3_fs.glsl" />
+    <None Include="..\Lab3\lab3-1_fs.glsl" />
     <None Include="..\Lab3\lab3_vs.glsl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
